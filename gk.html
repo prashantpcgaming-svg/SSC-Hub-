@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GK Flashcards — SSC Taiyari</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c10;
+  --surface: #0f1923;
+  --card: #152030;
+  --border: #1e3045;
+  --accent: #f0a500;
+  --accent2: #38bdf8;
+  --green: #22c55e;
+  --red: #ef4444;
+  --text: #e2eaf4;
+  --muted: #64748b;
+  --gold: #f59e0b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── GRID BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(240,165,0,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,165,0,.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* ── GLOW ORBS ── */
+.orb {
+  position: fixed; border-radius: 50%;
+  filter: blur(80px); pointer-events: none; z-index: 0; opacity: .25;
+}
+.orb1 { width: 400px; height: 400px; background: #f0a500; top: -100px; right: -100px; }
+.orb2 { width: 300px; height: 300px; background: #38bdf8; bottom: -80px; left: -80px; }
+
+/* ── LAYOUT ── */
+.app { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 20px 16px 60px; }
+
+/* ── HEADER ── */
+.header {
+  text-align: center; margin-bottom: 28px;
+  animation: fade-down .6s ease;
+}
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; color: var(--accent);
+  text-shadow: 0 0 30px rgba(240,165,0,.4);
+  margin-bottom: 4px;
+}
+.header p { color: var(--muted); font-size: .9rem; }
+
+/* ── NAV TABS ── */
+.nav {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 24px;
+  animation: fade-up .6s ease .1s both;
+}
+.nav-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted); padding: 8px 18px; border-radius: 30px;
+  cursor: pointer; font-size: .85rem; font-weight: 500;
+  transition: .25s; font-family: 'DM Sans', sans-serif;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+/* ── CATEGORY PILLS ── */
+.cat-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 20px; justify-content: center;
+}
+.cat-pill {
+  padding: 6px 14px; border-radius: 20px; font-size: .78rem;
+  font-weight: 600; cursor: pointer; border: 1px solid transparent;
+  transition: .2s; letter-spacing: .4px;
+}
+.cat-pill.active { color: #000 !important; }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: flex; gap: 12px; justify-content: center;
+  margin-bottom: 22px; flex-wrap: wrap;
+  animation: fade-up .6s ease .2s both;
+}
+.stat-chip {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px 16px; text-align: center;
+  min-width: 80px;
+}
+.stat-chip .sv { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+.stat-chip .sl { font-size: .68rem; color: var(--muted); margin-top: 1px; }
+
+/* ── FLASHCARD ── */
+.card-wrap {
+  perspective: 1200px;
+  margin: 0 auto 24px;
+  animation: fade-up .5s ease .15s both;
+}
+.card-inner {
+  position: relative; width: 100%; min-height: 260px;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+}
+.card-inner.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute; inset: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  backface-visibility: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 28px; text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+}
+.card-face.back { transform: rotateY(180deg); background: var(--surface); }
+
+.card-tag {
+  position: absolute; top: 14px; left: 16px;
+  font-size: .68rem; font-weight: 700; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 12px;
+  background: rgba(240,165,0,.15); color: var(--accent);
+  border: 1px solid rgba(240,165,0,.3);
+  text-transform: uppercase;
+}
+.card-num {
+  position: absolute; top: 14px; right: 16px;
+  font-size: .7rem; color: var(--muted);
+}
+.card-q {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; line-height: 1.5;
+  color: var(--text); margin-bottom: 12px;
+}
+.card-hint {
+  font-size: .78rem; color: var(--muted);
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 8px;
+}
+.card-a {
+  font-size: 1.15rem; font-weight: 600;
+  color: var(--accent); line-height: 1.5;
+  margin-bottom: 8px;
+}
+.card-detail {
+  font-size: .82rem; color: #94a3b8; line-height: 1.6;
+  margin-top: 8px;
+}
+.card-face.back .card-tag { background: rgba(56,189,248,.15); color: var(--accent2); border-color: rgba(56,189,248,.3); }
+
+/* ── CARD CONTROLS ── */
+.card-controls {
+  display: flex; gap: 12px; justify-content: center;
+  margin-bottom: 24px; flex-wrap: wrap;
+}
+.ctrl-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 11px 22px; border-radius: 14px; font-size: .88rem;
+  font-weight: 600; cursor: pointer; border: 1px solid transparent;
+  transition: .25s; font-family: 'DM Sans', sans-serif;
+}
+.ctrl-btn:hover { transform: translateY(-2px); }
+.btn-knew { background: rgba(34,197,94,.12); border-color: var(--green); color: var(--green); }
+.btn-knew:hover { background: var(--green); color: #000; }
+.btn-skip { background: rgba(239,68,68,.12); border-color: var(--red); color: var(--red); }
+.btn-skip:hover { background: var(--red); color: #fff; }
+.btn-flip { background: rgba(240,165,0,.12); border-color: var(--accent); color: var(--accent); }
+.btn-flip:hover { background: var(--accent); color: #000; }
+.btn-next { background: rgba(56,189,248,.12); border-color: var(--accent2); color: var(--accent2); }
+.btn-next:hover { background: var(--accent2); color: #000; }
+
+/* ── PROGRESS BAR ── */
+.prog-track {
+  background: var(--border); border-radius: 8px;
+  height: 6px; margin-bottom: 24px; overflow: hidden;
+}
+.prog-fill {
+  height: 100%; border-radius: 8px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width .5s ease;
+}
+
+/* ── QUIZ MODE ── */
+.quiz-opt {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 14px 18px; margin: 10px 0;
+  cursor: pointer; font-size: .95rem; text-align: left;
+  transition: .2s; display: flex; align-items: center; gap: 12px;
+}
+.quiz-opt:hover { border-color: var(--accent); transform: translateX(4px); }
+.quiz-opt.correct { background: rgba(34,197,94,.15); border-color: var(--green); color: var(--green); }
+.quiz-opt.wrong { background: rgba(239,68,68,.15); border-color: var(--red); color: var(--red); }
+.opt-letter {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--border); display: flex; align-items: center;
+  justify-content: center; font-weight: 700; font-size: .85rem;
+  flex-shrink: 0;
+}
+.quiz-feedback {
+  text-align: center; padding: 14px;
+  border-radius: 14px; margin-top: 14px;
+  font-weight: 600; font-size: 1rem;
+  animation: pop-in .3s ease;
+}
+.quiz-feedback.ok { background: rgba(34,197,94,.12); color: var(--green); }
+.quiz-feedback.no { background: rgba(239,68,68,.12); color: var(--red); }
+
+/* ── ADD CARD FORM ── */
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px; margin-bottom: 20px;
+  animation: fade-up .4s ease;
+}
+.form-card h3 { font-size: 1rem; margin-bottom: 16px; color: var(--accent); }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: 5px; font-weight: 500; letter-spacing: .3px; }
+.field input, .field textarea, .field select {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); padding: 11px 14px;
+  font-size: .9rem; font-family: 'DM Sans', sans-serif;
+  outline: none; transition: .2s;
+  resize: vertical;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+.field select option { background: var(--surface); }
+
+.btn-primary {
+  width: 100%; padding: 13px; border-radius: 12px;
+  background: var(--accent); color: #000; font-weight: 700;
+  font-size: .95rem; cursor: pointer; border: none;
+  font-family: 'DM Sans', sans-serif; transition: .2s;
+  letter-spacing: .3px;
+}
+.btn-primary:hover { background: #fbbf24; transform: translateY(-1px); }
+.btn-danger {
+  padding: 8px 16px; border-radius: 10px; font-size: .8rem;
+  background: rgba(239,68,68,.1); border: 1px solid var(--red);
+  color: var(--red); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: .2s;
+}
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+/* ── CARD LIST ── */
+.card-list-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px; margin: 8px 0;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; animation: fade-up .3s ease;
+}
+.cli-q { font-size: .9rem; color: var(--text); margin-bottom: 3px; }
+.cli-a { font-size: .8rem; color: var(--accent); font-weight: 600; }
+.cli-cat { font-size: .7rem; color: var(--muted); margin-top: 3px; }
+
+/* ── EMPTY STATE ── */
+.empty {
+  text-align: center; padding: 50px 20px;
+  color: var(--muted); font-size: .9rem;
+}
+.empty .ei { font-size: 3rem; margin-bottom: 10px; }
+
+/* ── RESULT SCREEN ── */
+.result-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 22px; padding: 32px; text-align: center;
+  animation: scale-in .5s ease;
+}
+.result-pct {
+  font-size: 4rem; font-weight: 700; color: var(--accent);
+  font-family: 'Playfair Display', serif;
+  text-shadow: 0 0 30px rgba(240,165,0,.4);
+}
+.result-msg { color: var(--muted); margin: 8px 0 20px; }
+
+/* ── ANIMATIONS ── */
+@keyframes fade-down { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fade-up   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+@keyframes scale-in  { from { opacity:0; transform:scale(.85); }        to { opacity:1; transform:scale(1); } }
+@keyframes pop-in    { 0%{transform:scale(.7);opacity:0;} 70%{transform:scale(1.06);} 100%{transform:scale(1);opacity:1;} }
+@keyframes card-slide-in { from{opacity:0;transform:translateX(40px);} to{opacity:1;transform:translateX(0);} }
+.slide-in { animation: card-slide-in .35s ease; }
+
+.hidden { display: none !important; }
+.section { animation: fade-up .4s ease; }
+
+/* ── SPACED REP INDICATOR ── */
+.sr-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+  border-radius: 0 0 22px 22px; overflow: hidden;
+}
+.sr-fill { height: 100%; transition: width .5s; }
+
+/* ── SWIPE HINT ── */
+.swipe-hint {
+  text-align: center; color: var(--muted);
+  font-size: .75rem; margin-bottom: 16px;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>📚 GK Flashcards</h1>
+    <p>SSC CGL / CHSL / MTS — Smart Revision Tool</p>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="goTab('study')">🃏 Study</button>
+    <button class="nav-btn" onclick="goTab('quiz')">🎯 Quiz</button>
+    <button class="nav-btn" onclick="goTab('add')">➕ Add Cards</button>
+    <button class="nav-btn" onclick="goTab('manage')">🗂 Manage</button>
+    <button class="nav-btn" onclick="goTab('progress')">📊 Progress</button>
+  </div>
+
+  <!-- ═══════════ STUDY TAB ═══════════ -->
+  <div id="tab-study" class="section">
+
+    <div class="stats-bar">
+      <div class="stat-chip"><div class="sv" id="st-total">0</div><div class="sl">Total Cards</div></div>
+      <div class="stat-chip"><div class="sv" id="st-knew" style="color:var(--green)">0</div><div class="sl">Knew ✅</div></div>
+      <div class="stat-chip"><div class="sv" id="st-skip" style="color:var(--red)">0</div><div class="sl">Review ❌</div></div>
+      <div class="stat-chip"><div class="sv" id="st-left" style="color:var(--accent2)">0</div><div class="sl">Left</div></div>
+    </div>
+
+    <!-- Category filter -->
+    <div class="cat-row" id="study-cats"></div>
+
+    <!-- Progress bar -->
+    <div class="prog-track"><div class="prog-fill" id="study-prog" style="width:0%"></div></div>
+
+    <!-- THE CARD -->
+    <div class="card-wrap" id="card-wrap">
+      <div class="card-inner" id="card-inner" onclick="flipCard()">
+        <div class="card-face front">
+          <span class="card-tag" id="cf-cat">History</span>
+          <span class="card-num" id="cf-num">1/20</span>
+          <div class="card-q" id="cf-q">Loading...</div>
+          <div class="card-hint">👆 Tap to reveal answer</div>
+          <div class="sr-bar"><div class="sr-fill" id="sr-fill" style="width:50%;background:var(--accent)"></div></div>
+        </div>
+        <div class="card-face back">
+          <span class="card-tag" id="cb-cat">History</span>
+          <span class="card-num" id="cb-num">1/20</span>
+          <div class="card-a" id="cb-a">Answer</div>
+          <div class="card-detail" id="cb-detail"></div>
+          <div class="sr-bar"><div class="sr-fill" style="width:50%;background:var(--accent2)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="swipe-hint">Tap card to flip • Mark if you knew it</div>
+
+    <div class="card-controls">
+      <button class="ctrl-btn btn-knew" onclick="markCard(true)">✅ Knew It</button>
+      <button class="ctrl-btn btn-skip" onclick="markCard(false)">❌ Review</button>
+      <button class="ctrl-btn btn-next" onclick="nextCard()">Next ➡</button>
+    </div>
+
+    <div id="study-done" class="hidden result-box">
+      <div class="result-pct" id="sd-pct">0%</div>
+      <div class="result-msg" id="sd-msg"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
+        <button class="ctrl-btn btn-knew" onclick="restartStudy(false)">🔄 All Cards</button>
+        <button class="ctrl-btn btn-skip" onclick="restartStudy(true)">🔁 Review Only</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ QUIZ TAB ═══════════ -->
+  <div id="tab-quiz" class="hidden section">
+    <div id="quiz-setup">
+      <div class="form-card">
+        <h3>🎯 Quiz Settings</h3>
+        <div class="field">
+          <label>Category</label>
+          <select id="qz-cat">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Number of Questions</label>
+          <select id="qz-count">
+            <option value="10">10 Questions</option>
+            <option value="20" selected>20 Questions</option>
+            <option value="30">30 Questions</option>
+            <option value="999">All</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="startQuiz()">Start Quiz 🚀</button>
+      </div>
+    </div>
+
+    <div id="quiz-active" class="hidden">
+      <div class="stats-bar">
+        <div class="stat-chip"><div class="sv" id="qz-num">1</div><div class="sl">Question</div></div>
+        <div class="stat-chip"><div class="sv" id="qz-score" style="color:var(--green)">0</div><div class="sl">Correct</div></div>
+        <div class="stat-chip"><div class="sv" id="qz-wrong" style="color:var(--red)">0</div><div class="sl">Wrong</div></div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="qz-prog" style="width:0%"></div></div>
+
+      <div class="card-wrap" style="margin-bottom:16px;">
+        <div class="card-face" style="position:relative;min-height:140px;border-radius:22px;box-shadow:0 8px 40px rgba(0,0,0,.5);">
+          <span class="card-tag" id="qz-cat-tag">Category</span>
+          <span class="card-num" id="qz-tag-num">1/20</span>
+          <div class="card-q" id="qz-q" style="margin-top:20px;">Question</div>
+        </div>
+      </div>
+
+      <div id="qz-opts"></div>
+      <div id="qz-feedback" class="hidden quiz-feedback"></div>
+      <button class="ctrl-btn btn-next hidden" id="qz-next-btn" onclick="nextQuizQ()" style="margin:14px auto;display:flex;">Next ➡</button>
+    </div>
+
+    <div id="quiz-result" class="hidden result-box">
+      <div style="font-size:2.5rem;margin-bottom:8px;">🏆</div>
+      <div class="result-pct" id="qz-res-pct">0%</div>
+      <div class="result-msg" id="qz-res-msg"></div>
+      <div class="stat-row" style="margin:16px 0;">
+        <div class="stat-chip"><div class="val sv" id="qz-r-c" style="color:var(--green)">0</div><div class="sl">Correct ✅</div></div>
+        <div class="stat-chip"><div class="val sv" id="qz-r-w" style="color:var(--red)">0</div><div class="sl">Wrong ❌</div></div>
+        <div class="stat-chip"><div class="val sv" id="qz-r-t">0</div><div class="sl">Total</div></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="ctrl-btn btn-flip" onclick="document.getElementById('quiz-setup').classList.remove('hidden');document.getElementById('quiz-result').classList.add('hidden');">🔄 Again</button>
+        <button class="ctrl-btn btn-skip" onclick="startRevisionQuiz()">📝 Revise Wrong</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ ADD CARDS TAB ═══════════ -->
+  <div id="tab-add" class="hidden section">
+    <div class="form-card">
+      <h3>➕ New Flashcard</h3>
+      <div class="field">
+        <label>Category</label>
+        <select id="add-cat">
+          <option value="History">📜 History</option>
+          <option value="Geography">🌍 Geography</option>
+          <option value="Polity">🏛 Polity</option>
+          <option value="Economy">💰 Economy</option>
+          <option value="Science">🔬 Science</option>
+          <option value="Current Affairs">📰 Current Affairs</option>
+          <option value="Sports">🏆 Sports</option>
+          <option value="Awards">🎖 Awards</option>
+          <option value="Misc">📌 Misc</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Question / Front Side</label>
+        <textarea id="add-q" rows="3" placeholder="e.g. Who was the first President of India?"></textarea>
+      </div>
+      <div class="field">
+        <label>Answer / Back Side</label>
+        <input type="text" id="add-a" placeholder="e.g. Dr. Rajendra Prasad">
+      </div>
+      <div class="field">
+        <label>Extra Detail (optional)</label>
+        <textarea id="add-detail" rows="2" placeholder="e.g. Served 1950–1962. Only President to serve two terms."></textarea>
+      </div>
+      <button class="btn-primary" onclick="addCard()">Add Card ✚</button>
+      <div id="add-msg" style="margin-top:10px;font-size:.85rem;text-align:center;"></div>
+    </div>
+
+    <!-- Bulk preloaded cards -->
+    <div class="form-card">
+      <h3>⚡ Load SSC Sample Cards</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">100+ pre-loaded SSC GK questions add ho jayenge instantly.</p>
+      <button class="btn-primary" onclick="loadSampleCards()">Load Sample Cards 📦</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ MANAGE TAB ═══════════ -->
+  <div id="tab-manage" class="hidden section">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <h3 style="color:var(--accent);">🗂 All Cards (<span id="mg-count">0</span>)</h3>
+      <button class="btn-danger" onclick="clearAll()">🗑 Clear All</button>
+    </div>
+    <div class="cat-row" id="manage-cats"></div>
+    <div id="card-list"></div>
+  </div>
+
+  <!-- ═══════════ PROGRESS TAB ═══════════ -->
+  <div id="tab-progress" class="hidden section">
+    <div class="stats-bar" style="margin-bottom:20px;">
+      <div class="stat-chip"><div class="sv" id="pr-total">0</div><div class="sl">Total Cards</div></div>
+      <div class="stat-chip"><div class="sv" id="pr-mastered" style="color:var(--green)">0</div><div class="sl">Mastered 🏆</div></div>
+      <div class="stat-chip"><div class="sv" id="pr-review" style="color:var(--red)">0</div><div class="sl">Need Review</div></div>
+    </div>
+    <div id="pr-cats"></div>
+    <div style="margin-top:20px;text-align:center;">
+      <button class="btn-danger" onclick="resetProgress()">🔄 Reset Progress</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════
+//  DATA
+// ══════════════════════════════════
+const KEY_CARDS = 'gk_cards';
+const KEY_PROG  = 'gk_prog'; // {id: {knew:n, review:n, streak:n}}
+
+let cards   = JSON.parse(localStorage.getItem(KEY_CARDS)) || [];
+let prog    = JSON.parse(localStorage.getItem(KEY_PROG))  || {};
+
+function saveCards(){ localStorage.setItem(KEY_CARDS, JSON.stringify(cards)); }
+function saveProg() { localStorage.setItem(KEY_PROG,  JSON.stringify(prog));  }
+
+// ── Category colors
+const CAT_COLORS = {
+  'History':        {bg:'rgba(234,179,8,.15)',  border:'#ca8a04', text:'#fbbf24'},
+  'Geography':      {bg:'rgba(34,197,94,.15)',  border:'#16a34a', text:'#4ade80'},
+  'Polity':         {bg:'rgba(99,102,241,.15)', border:'#6366f1', text:'#a5b4fc'},
+  'Economy':        {bg:'rgba(236,72,153,.15)', border:'#db2777', text:'#f472b6'},
+  'Science':        {bg:'rgba(6,182,212,.15)',  border:'#0891b2', text:'#67e8f9'},
+  'Current Affairs':{bg:'rgba(239,68,68,.15)',  border:'#dc2626', text:'#fca5a5'},
+  'Sports':         {bg:'rgba(249,115,22,.15)', border:'#ea580c', text:'#fb923c'},
+  'Awards':         {bg:'rgba(168,85,247,.15)', border:'#9333ea', text:'#c084fc'},
+  'Misc':           {bg:'rgba(100,116,139,.15)',border:'#475569', text:'#94a3b8'},
+};
+
+function catStyle(cat){
+  const c = CAT_COLORS[cat] || CAT_COLORS['Misc'];
+  return `background:${c.bg};border:1px solid ${c.border};color:${c.text};`;
+}
+
+// ══════════════════════════════════
+//  SAMPLE CARDS  (SSC GK)
+// ══════════════════════════════════
+const SAMPLES = [
+  // History
+  {cat:'History',q:'Who was the first President of India?',a:'Dr. Rajendra Prasad',d:'Served 1950–1962. Only President to serve two full terms.'},
+  {cat:'History',q:'In which year did India gain independence?',a:'15 August 1947',d:'British rule ended; Lord Mountbatten was the last Viceroy.'},
+  {cat:'History',q:'Who is called the "Iron Man of India"?',a:'Sardar Vallabhbhai Patel',d:'Unified 562 princely states into the Indian Union.'},
+  {cat:'History',q:'When was the Battle of Plassey fought?',a:'1757',d:'Robert Clive defeated Siraj ud-Daulah; start of British dominance.'},
+  {cat:'History',q:'Who founded the Indian National Congress in 1885?',a:'A.O. Hume',d:'First session held in Bombay (Mumbai).'},
+  {cat:'History',q:'The Quit India Movement was launched in which year?',a:'1942',d:'8 August 1942; Gandhi gave the "Do or Die" slogan.'},
+  {cat:'History',q:'Who wrote the book "Discovery of India"?',a:'Jawaharlal Nehru',d:'Written during 1942–1946 while imprisoned at Ahmadnagar Fort.'},
+  {cat:'History',q:'The Jallianwala Bagh massacre occurred in which year?',a:'1919',d:'13 April 1919; ordered by General Dyer in Amritsar.'},
+  {cat:'History',q:'Who gave the slogan "Jai Hind"?',a:'Subhas Chandra Bose',d:'Founder of Azad Hind Fauj (INA).'},
+  {cat:'History',q:'The First War of Indian Independence was fought in which year?',a:'1857',d:'Also called the Sepoy Mutiny; started at Meerut.'},
+  // Geography
+  {cat:'Geography',q:'What is the longest river in India?',a:'Ganga (Ganges)',d:'Length ~2,525 km. Originates from Gangotri glacier.'},
+  {cat:'Geography',q:'Which is the highest peak in India?',a:'K2 (Godwin-Austen)',d:'8,611 m; located in Ladakh. Kangchenjunga is highest within India proper.'},
+  {cat:'Geography',q:'The Tropic of Cancer passes through how many Indian states?',a:'8 States',d:'Gujarat, Rajasthan, MP, Chhattisgarh, Jharkhand, WB, Tripura, Mizoram.'},
+  {cat:'Geography',q:'Which is the largest state in India by area?',a:'Rajasthan',d:'Area: ~342,239 km². Shares border with Pakistan.'},
+  {cat:'Geography',q:'Which river is known as the "Sorrow of Bihar"?',a:'Kosi River',d:'Prone to devastating floods in Bihar.'},
+  {cat:'Geography',q:'India shares its longest border with which country?',a:'Bangladesh',d:'Border length ~4,156 km.'},
+  {cat:'Geography',q:'Which Indian state has the longest coastline?',a:'Gujarat',d:'Coastline ~1,600 km along Arabian Sea.'},
+  {cat:'Geography',q:'The Sundarbans delta is formed by which rivers?',a:'Ganga and Brahmaputra',d:'World\'s largest mangrove forest; home to Royal Bengal Tiger.'},
+  {cat:'Geography',q:'Which is the smallest state of India by area?',a:'Goa',d:'Area ~3,702 km².'},
+  {cat:'Geography',q:'Where is the Siachen Glacier located?',a:'Karakoram Range (Ladakh)',d:'World\'s highest battlefield; India-Pakistan dispute.'},
+  // Polity
+  {cat:'Polity',q:'How many Fundamental Rights are guaranteed by the Indian Constitution?',a:'6 Fundamental Rights',d:'Right to Equality, Freedom, Against Exploitation, Religion, Culture & Education, Constitutional Remedies.'},
+  {cat:'Polity',q:'Who is called the "Father of the Indian Constitution"?',a:'Dr. B.R. Ambedkar',d:'Chairman of the Drafting Committee.'},
+  {cat:'Polity',q:'In which year was the Indian Constitution adopted?',a:'26 November 1949',d:'Came into effect on 26 January 1950 (Republic Day).'},
+  {cat:'Polity',q:'Which article of the Constitution abolishes untouchability?',a:'Article 17',d:'Untouchability is abolished and its practice is forbidden.'},
+  {cat:'Polity',q:'Who appoints the Chief Justice of India?',a:'President of India',d:'On the recommendation of the outgoing CJI.'},
+  {cat:'Polity',q:'What is the maximum strength of Lok Sabha?',a:'552 members',d:'530 states + 20 UTs + 2 Anglo-Indian nominees (now removed by 104th amendment).'},
+  {cat:'Polity',q:'The Preamble of India calls India a —',a:'Sovereign Socialist Secular Democratic Republic',d:'"Socialist" and "Secular" added by 42nd Amendment (1976).'},
+  {cat:'Polity',q:'Which Schedule of the Constitution contains the list of languages?',a:'8th Schedule',d:'Currently has 22 languages.'},
+  {cat:'Polity',q:'The concept of Judicial Review is borrowed from which country?',a:'USA',d:'Article 13 empowers courts to review laws.'},
+  {cat:'Polity',q:'Who was the first Chief Justice of India?',a:'Justice H.J. Kania',d:'Served 1950–1951.'},
+  // Economy
+  {cat:'Economy',q:'The Reserve Bank of India was established in which year?',a:'1935',d:'Nationalized in 1949. HQ: Mumbai.'},
+  {cat:'Economy',q:'What is the full form of GDP?',a:'Gross Domestic Product',d:'Total monetary value of goods/services in a year.'},
+  {cat:'Economy',q:'Which Five-Year Plan focused on "Garibi Hatao"?',a:'5th Five-Year Plan (1974–79)',d:'Slogan by Indira Gandhi.'},
+  {cat:'Economy',q:'GST in India was implemented from which date?',a:'1 July 2017',d:'Replaced multiple indirect taxes. "One Nation One Tax."'},
+  {cat:'Economy',q:'The Planning Commission of India was replaced by?',a:'NITI Aayog',d:'Established 1 January 2015.'},
+  {cat:'Economy',q:'Which bank prints currency notes in India?',a:'Reserve Bank of India',d:'Except ₹1 note, which is issued by the Ministry of Finance.'},
+  {cat:'Economy',q:'What is the base year for current GDP calculation in India?',a:'2011–12',d:'Changed from 2004–05.'},
+  {cat:'Economy',q:'SEBI stands for?',a:'Securities and Exchange Board of India',d:'Regulates Indian securities market. Established 1988, statutory body 1992.'},
+  // Science
+  {cat:'Science',q:'What is the chemical formula of water?',a:'H₂O',d:'Two hydrogen atoms bonded to one oxygen atom.'},
+  {cat:'Science',q:'Who invented the telephone?',a:'Alexander Graham Bell',d:'Patent granted in 1876.'},
+  {cat:'Science',q:'What is the SI unit of electric current?',a:'Ampere (A)',d:'Named after André-Marie Ampère.'},
+  {cat:'Science',q:'Which planet is known as the Red Planet?',a:'Mars',d:'Red colour due to iron oxide (rust) on its surface.'},
+  {cat:'Science',q:'DNA stands for?',a:'Deoxyribonucleic Acid',d:'Carries genetic information in living organisms.'},
+  {cat:'Science',q:'The speed of light in vacuum is approximately?',a:'3 × 10⁸ m/s',d:'Exactly 299,792,458 m/s.'},
+  {cat:'Science',q:'Which vitamin is produced when skin is exposed to sunlight?',a:'Vitamin D',d:'Synthesized from cholesterol when skin is exposed to UV-B.'},
+  {cat:'Science',q:'Who proposed the Theory of General Relativity?',a:'Albert Einstein',d:'Published in 1915.'},
+  {cat:'Science',q:'Which gas is most abundant in Earth\'s atmosphere?',a:'Nitrogen (N₂) — 78%',d:'Followed by Oxygen (21%) and Argon (0.9%).'},
+  {cat:'Science',q:'The pH of pure water is?',a:'7 (Neutral)',d:'Below 7 = acidic; above 7 = basic/alkaline.'},
+  // Current Affairs (sample)
+  {cat:'Current Affairs',q:'India\'s G20 Presidency theme was?',a:'Vasudhaiva Kutumbakam',d:'"One Earth, One Family, One Future" — India hosted G20 Summit 2023 in New Delhi.'},
+  {cat:'Current Affairs',q:'Which Indian won the Nobel Peace Prize in 2014?',a:'Kailash Satyarthi',d:'Jointly with Malala Yousafzai for children\'s rights.'},
+  {cat:'Current Affairs',q:'Which is India\'s first indigenously developed aircraft carrier?',a:'INS Vikrant',d:'Commissioned 2 September 2022.'},
+  // Sports
+  {cat:'Sports',q:'Who is known as "Flying Sikh" of India?',a:'Milkha Singh',d:'Won gold at 1958 Commonwealth Games; 4th at 1960 Rome Olympics.'},
+  {cat:'Sports',q:'In which year did India win its first Cricket World Cup?',a:'1983',d:'Kapil Dev\'s team defeated West Indies in the final.'},
+  {cat:'Sports',q:'Who holds the record for most international centuries in cricket?',a:'Sachin Tendulkar',d:'100 international centuries; 51 Tests + 49 ODIs.'},
+  {cat:'Sports',q:'Which Indian won the first individual Olympic gold medal?',a:'Abhinav Bindra',d:'10m Air Rifle, Beijing Olympics 2008.'},
+  // Awards
+  {cat:'Awards',q:'India\'s highest civilian award is?',a:'Bharat Ratna',d:'Established 1954. First awarded to C. Rajagopalachari, S. Radhakrishnan, C.V. Raman.'},
+  {cat:'Awards',q:'Which award is given for gallantry during wartime?',a:'Param Vir Chakra',d:'India\'s highest military honour.'},
+  {cat:'Awards',q:'The Dadasaheb Phalke Award is given for contribution to?',a:'Indian Cinema',d:'Highest award in Indian cinema; named after "Father of Indian Cinema."'},
+  {cat:'Awards',q:'Which Indian scientist received the Bharat Ratna in 1954?',a:'C.V. Raman',d:'Nobel Prize in Physics 1930 for the Raman Effect.'},
+];
+
+function loadSampleCards(){
+  let added=0;
+  SAMPLES.forEach(s=>{
+    const id = Date.now()+Math.random();
+    if(!cards.some(c=>c.q===s.q)){
+      cards.push({id, cat:s.cat, q:s.q, a:s.a, d:s.d||''});
+      added++;
+    }
+  });
+  saveCards();
+  updateAll();
+  document.getElementById('add-msg').innerHTML=`<span style="color:var(--green)">✅ ${added} cards added!</span>`;
+  setTimeout(()=>document.getElementById('add-msg').innerHTML='', 3000);
+}
+
+// ══════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════
+const TABS = ['study','quiz','add','manage','progress'];
+function goTab(t){
+  TABS.forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('hidden', x!==t);
+    document.querySelectorAll('.nav-btn')[TABS.indexOf(x)].classList.toggle('active', x===t);
+  });
+  if(t==='study')    initStudy();
+  if(t==='manage')   renderManage();
+  if(t==='progress') renderProgress();
+  if(t==='quiz')     { renderQuizSetup(); document.getElementById('quiz-setup').classList.remove('hidden'); document.getElementById('quiz-active').classList.add('hidden'); document.getElementById('quiz-result').classList.add('hidden'); }
+}
+
+// ══════════════════════════════════
+//  CATEGORY HELPERS
+// ══════════════════════════════════
+function getCategories(){
+  return [...new Set(cards.map(c=>c.cat))].sort();
+}
+function buildCatPills(containerId, currentCat, onClickFn){
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  const all = document.createElement('div');
+  all.className='cat-pill'+(currentCat==='all'?' active':'');
+  all.style=catStyle('Misc')+(currentCat==='all'?'background:var(--muted);color:#fff;':'');
+  all.innerText='All';
+  all.onclick=()=>onClickFn('all');
+  el.appendChild(all);
+  getCategories().forEach(cat=>{
+    const p=document.createElement('div');
+    p.className='cat-pill'+(currentCat===cat?' active':'');
+    p.style=catStyle(cat);
+    p.innerText=cat;
+    p.onclick=()=>onClickFn(cat);
+    el.appendChild(p);
+  });
+}
+
+// ══════════════════════════════════
+//  STUDY MODE
+// ══════════════════════════════════
+let studyQueue=[], studyIdx=0, studyKnew=0, studySkip=0, studyCat='all', isFlipped=false;
+
+function initStudy(reviewOnly=false){
+  const filtered = studyCat==='all' ? cards : cards.filter(c=>c.cat===studyCat);
+  if(reviewOnly){
+    studyQueue = filtered.filter(c=>{ const p=prog[c.id]; return p&&p.review>0&&(!p.knew||p.review>=p.knew); });
+    if(!studyQueue.length){ studyQueue=[...filtered]; }
+  } else {
+    // Spaced-rep sort: prioritize review cards
+    studyQueue=[...filtered].sort((a,b)=>{
+      const pa=prog[a.id]||{knew:0,review:0};
+      const pb=prog[b.id]||{knew:0,review:0};
+      const sa=pa.review-(pa.knew||0);
+      const sb=pb.review-(pb.knew||0);
+      return sb-sa;
+    });
+  }
+  studyIdx=0; studyKnew=0; studySkip=0;
+  document.getElementById('study-done').classList.add('hidden');
+  document.getElementById('card-wrap').style.display='';
+  document.querySelectorAll('.card-controls .ctrl-btn').forEach(b=>b.style.display='');
+  document.querySelector('.swipe-hint').style.display='';
+  buildCatPills('study-cats', studyCat, cat=>{ studyCat=cat; initStudy(); });
+  updateStudyStats();
+  showCard();
+}
+
+function showCard(){
+  if(studyIdx>=studyQueue.length){ endStudy(); return; }
+  isFlipped=false;
+  document.getElementById('card-inner').classList.remove('flipped','slide-in');
+  void document.getElementById('card-inner').offsetWidth;
+  document.getElementById('card-inner').classList.add('slide-in');
+
+  const c=studyQueue[studyIdx];
+  const p=prog[c.id]||{knew:0,review:0};
+  const total=p.knew+p.review;
+  const accuracy=total?Math.round(p.knew/total*100):50;
+  const srColor=accuracy>=80?'var(--green)':accuracy>=50?'var(--accent)':'var(--red)';
+
+  ['cf-cat','cb-cat'].forEach(id=>document.getElementById(id).innerText=c.cat);
+  ['cf-cat','cb-cat'].forEach(id=>document.getElementById(id).style=catStyle(c.cat));
+  const numText=`${studyIdx+1}/${studyQueue.length}`;
+  document.getElementById('cf-num').innerText=numText;
+  document.getElementById('cb-num').innerText=numText;
+  document.getElementById('cf-q').innerText=c.q;
+  document.getElementById('cb-a').innerText=c.a;
+  document.getElementById('cb-detail').innerText=c.d||'';
+  document.getElementById('sr-fill').style=`width:${accuracy}%;background:${srColor}`;
+  updateStudyStats();
+}
+
+function flipCard(){
+  isFlipped=!isFlipped;
+  document.getElementById('card-inner').classList.toggle('flipped',isFlipped);
+}
+
+function markCard(knew){
+  const c=studyQueue[studyIdx];
+  if(!prog[c.id]) prog[c.id]={knew:0,review:0};
+  if(knew){ prog[c.id].knew++; studyKnew++; }
+  else { prog[c.id].review++; studySkip++; }
+  saveProg();
+  nextCard();
+}
+
+function nextCard(){
+  studyIdx++;
+  showCard();
+}
+
+function updateStudyStats(){
+  const filtered = studyCat==='all' ? cards : cards.filter(c=>c.cat===studyCat);
+  document.getElementById('st-total').innerText=filtered.length;
+  document.getElementById('st-knew').innerText=studyKnew;
+  document.getElementById('st-skip').innerText=studySkip;
+  document.getElementById('st-left').innerText=Math.max(0,studyQueue.length-studyIdx);
+  const pct=studyQueue.length?Math.round(studyIdx/studyQueue.length*100):0;
+  document.getElementById('study-prog').style.width=pct+'%';
+}
+
+function endStudy(){
+  const total=studyKnew+studySkip;
+  const pct=total?Math.round(studyKnew/total*100):0;
+  document.getElementById('card-wrap').style.display='none';
+  document.querySelectorAll('.card-controls .ctrl-btn').forEach(b=>b.style.display='none');
+  document.querySelector('.swipe-hint').style.display='none';
+  document.getElementById('sd-pct').innerText=pct+'%';
+  document.getElementById('sd-msg').innerText=
+    pct===100?'🏆 Perfect! Sab yaad hai!':
+    pct>=80  ?'🌟 Bahut badhiya! Almost master!':
+    pct>=50  ?'👍 Achha kiya! Review wale dobara karo.':
+              '💪 Mehnat karo — daily practice se improve hoga!';
+  document.getElementById('study-done').classList.remove('hidden');
+}
+
+function restartStudy(reviewOnly){
+  document.getElementById('study-done').classList.add('hidden');
+  initStudy(reviewOnly);
+}
+
+// ══════════════════════════════════
+//  QUIZ MODE
+// ══════════════════════════════════
+let quizQ=[], quizIdx=0, quizCorrect=0, quizWrong=0, quizAnswered=false, quizWrongIds=[];
+
+function renderQuizSetup(){
+  const sel=document.getElementById('qz-cat');
+  sel.innerHTML='<option value="all">All Categories</option>';
+  getCategories().forEach(cat=>{
+    const o=document.createElement('option');
+    o.value=cat; o.innerText=cat; sel.appendChild(o);
+  });
+}
+
+function startQuiz(){
+  if(!cards.length){alert('Pehle cards add karo!');return;}
+  const cat=document.getElementById('qz-cat').value;
+  const count=parseInt(document.getElementById('qz-count').value);
+  let pool=cat==='all'?[...cards]:cards.filter(c=>c.cat===cat);
+  pool=pool.sort(()=>Math.random()-.5).slice(0,count);
+  if(pool.length<2){alert('Kam se kam 2 cards chahiye quiz ke liye!');return;}
+  quizQ=pool; quizIdx=0; quizCorrect=0; quizWrong=0; quizWrongIds=[];
+  document.getElementById('quiz-setup').classList.add('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+  showQuizQ();
+}
+
+function showQuizQ(){
+  if(quizIdx>=quizQ.length){endQuiz();return;}
+  quizAnswered=false;
+  const c=quizQ[quizIdx];
+  document.getElementById('qz-q').innerText=c.q;
+  document.getElementById('qz-cat-tag').innerText=c.cat;
+  document.getElementById('qz-cat-tag').style=catStyle(c.cat);
+  document.getElementById('qz-tag-num').innerText=`${quizIdx+1}/${quizQ.length}`;
+  document.getElementById('qz-num').innerText=quizIdx+1;
+  document.getElementById('qz-score').innerText=quizCorrect;
+  document.getElementById('qz-wrong').innerText=quizWrong;
+  document.getElementById('qz-prog').style.width=(quizIdx/quizQ.length*100)+'%';
+  document.getElementById('qz-feedback').classList.add('hidden');
+  document.getElementById('qz-next-btn').classList.add('hidden');
+
+  // Generate 4 options
+  const wrongPool=cards.filter(x=>x.id!==c.id&&x.a!==c.a);
+  const wrongs=wrongPool.sort(()=>Math.random()-.5).slice(0,3).map(x=>x.a);
+  const opts=[c.a,...wrongs].sort(()=>Math.random()-.5);
+
+  const container=document.getElementById('qz-opts');
+  container.innerHTML='';
+  opts.forEach((o,i)=>{
+    const div=document.createElement('div');
+    div.className='quiz-opt';
+    div.innerHTML=`<div class="opt-letter">${'ABCD'[i]}</div><span>${o}</span>`;
+    div.onclick=()=>answerQuiz(o,c.a,div);
+    container.appendChild(div);
+  });
+}
+
+function answerQuiz(chosen, correct, el){
+  if(quizAnswered) return;
+  quizAnswered=true;
+  const isOk=chosen===correct;
+  if(isOk){ quizCorrect++; } else { quizWrong++; quizWrongIds.push(quizQ[quizIdx].id); }
+
+  // Color all opts
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    const txt=b.querySelector('span').innerText;
+    if(txt===correct) b.classList.add('correct');
+    else if(txt===chosen&&!isOk) b.classList.add('wrong');
+    b.onclick=null;
+  });
+
+  const fb=document.getElementById('qz-feedback');
+  fb.className='quiz-feedback'+(isOk?' ok':' no');
+  fb.innerText=isOk?'✅ Sahi Jawab! Badhiya!':'❌ Galat! Sahi tha: '+correct;
+  fb.classList.remove('hidden');
+  document.getElementById('qz-next-btn').classList.remove('hidden');
+  document.getElementById('qz-score').innerText=quizCorrect;
+  document.getElementById('qz-wrong').innerText=quizWrong;
+}
+
+function nextQuizQ(){ quizIdx++; showQuizQ(); }
+
+function endQuiz(){
+  const total=quizCorrect+quizWrong;
+  const pct=total?Math.round(quizCorrect/total*100):0;
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-result').classList.remove('hidden');
+  document.getElementById('qz-res-pct').innerText=pct+'%';
+  document.getElementById('qz-r-c').innerText=quizCorrect;
+  document.getElementById('qz-r-w').innerText=quizWrong;
+  document.getElementById('qz-r-t').innerText=total;
+  document.getElementById('qz-res-msg').innerText=
+    pct===100?'🏆 Perfect Score! SSC pakka!':
+    pct>=80  ?'🌟 Excellent! Bahut achha hua!':
+    pct>=60  ?'👍 Achha! Thoda aur practice karo.':
+              '💪 Revision karo aur phir try karo!';
+}
+
+function startRevisionQuiz(){
+  if(!quizWrongIds.length){alert('Koi galat jawab nahi tha!');return;}
+  const wrongCards=cards.filter(c=>quizWrongIds.includes(c.id));
+  quizQ=wrongCards; quizIdx=0; quizCorrect=0; quizWrong=0; quizWrongIds=[];
+  document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+  showQuizQ();
+}
+
+// ══════════════════════════════════
+//  ADD CARD
+// ══════════════════════════════════
+function addCard(){
+  const cat=document.getElementById('add-cat').value;
+  const q=document.getElementById('add-q').value.trim();
+  const a=document.getElementById('add-a').value.trim();
+  const d=document.getElementById('add-detail').value.trim();
+  if(!q||!a){ document.getElementById('add-msg').innerHTML='<span style="color:var(--red)">⚠️ Question aur Answer zaroori hain!</span>'; return; }
+  const id=Date.now()+'_'+Math.random().toString(36).slice(2);
+  cards.push({id,cat,q,a,d});
+  saveCards();
+  updateAll();
+  document.getElementById('add-q').value='';
+  document.getElementById('add-a').value='';
+  document.getElementById('add-detail').value='';
+  document.getElementById('add-msg').innerHTML=`<span style="color:var(--green)">✅ Card added! Total: ${cards.length}</span>`;
+  setTimeout(()=>document.getElementById('add-msg').innerHTML='', 2500);
+}
+
+// ══════════════════════════════════
+//  MANAGE
+// ══════════════════════════════════
+let manageCat='all';
+function renderManage(){
+  document.getElementById('mg-count').innerText=cards.length;
+  buildCatPills('manage-cats', manageCat, cat=>{ manageCat=cat; renderManage(); });
+  const list=document.getElementById('card-list');
+  list.innerHTML='';
+  if(!cards.length){list.innerHTML='<div class="empty"><div class="ei">📭</div><p>Koi card nahi. "Add Cards" tab se add karo ya Sample load karo.</p></div>';return;}
+  const filtered=manageCat==='all'?cards:cards.filter(c=>c.cat===manageCat);
+  if(!filtered.length){list.innerHTML='<div class="empty"><p>Is category mein koi card nahi.</p></div>';return;}
+  filtered.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='card-list-item';
+    div.innerHTML=`
+      <div style="flex:1">
+        <div class="cli-q">${c.q}</div>
+        <div class="cli-a">→ ${c.a}</div>
+        <div class="cli-cat" style="${catStyle(c.cat)}border-radius:8px;padding:2px 8px;display:inline-block;margin-top:4px;">${c.cat}</div>
+      </div>
+      <button class="btn-danger" onclick="deleteCard('${c.id}')">🗑</button>`;
+    list.appendChild(div);
+  });
+}
+
+function deleteCard(id){
+  cards=cards.filter(c=>c.id!==id);
+  delete prog[id];
+  saveCards(); saveProg();
+  renderManage(); updateAll();
+}
+
+function clearAll(){
+  if(confirm('Saare cards delete ho jayenge. Sure ho?')){
+    cards=[]; prog={};
+    saveCards(); saveProg();
+    renderManage(); updateAll();
+  }
+}
+
+// ══════════════════════════════════
+//  PROGRESS
+// ══════════════════════════════════
+function renderProgress(){
+  const total=cards.length;
+  let mastered=0, needReview=0;
+  cards.forEach(c=>{
+    const p=prog[c.id]||{knew:0,review:0};
+    const t=p.knew+p.review;
+    const acc=t?p.knew/t:0;
+    if(acc>=0.8&&t>=3) mastered++;
+    else if(p.review>p.knew) needReview++;
+  });
+  document.getElementById('pr-total').innerText=total;
+  document.getElementById('pr-mastered').innerText=mastered;
+  document.getElementById('pr-review').innerText=needReview;
+
+  const container=document.getElementById('pr-cats');
+  container.innerHTML='';
+  getCategories().forEach(cat=>{
+    const catCards=cards.filter(c=>c.cat===cat);
+    const knew=catCards.reduce((s,c)=>(prog[c.id]?.knew||0)+s,0);
+    const review=catCards.reduce((s,c)=>(prog[c.id]?.review||0)+s,0);
+    const total=knew+review;
+    const pct=total?Math.round(knew/total*100):0;
+    const color=pct>=80?'var(--green)':pct>=50?'var(--accent)':'var(--red)';
+    const div=document.createElement('div');
+    div.style='margin-bottom:14px;';
+    div.innerHTML=`
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:5px;">
+        <span style="${catStyle(cat)}padding:2px 10px;border-radius:10px;">${cat}</span>
+        <span style="color:${color}">${pct}% (${catCards.length} cards, ${knew}✅ ${review}❌)</span>
+      </div>
+      <div style="background:var(--border);border-radius:8px;height:8px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${color};border-radius:8px;transition:width .6s;"></div>
+      </div>`;
+    container.appendChild(div);
+  });
+  if(!getCategories().length) container.innerHTML='<p style="color:var(--muted);text-align:center;">Koi data nahi abhi tak.</p>';
+}
+
+function resetProgress(){
+  if(confirm('Saari progress reset ho jayegi?')){prog={};saveProg();renderProgress();}}
+
+// ══════════════════════════════════
+//  UTILS
+// ══════════════════════════════════
+function updateAll(){
+  // Update study stats header
+  document.getElementById('st-total').innerText=cards.length;
+  // Refresh quiz cat dropdown if open
+  renderQuizSetup();
+}
+
+// ── INIT
+updateAll();
+initStudy();
+</script>
+</body>
+</html>

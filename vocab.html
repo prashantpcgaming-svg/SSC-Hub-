@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Master — SSC Taiyari</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090f;
+  --surface: #0e1420;
+  --card: #131c2e;
+  --border: #1e2d45;
+  --accent: #6ee7b7;   /* mint green */
+  --accent2: #f472b6;  /* pink */
+  --accent3: #fbbf24;  /* amber */
+  --blue: #60a5fa;
+  --text: #e2eaf4;
+  --muted: #4a6080;
+  --red: #f87171;
+  --green: #34d399;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated mesh background */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(110,231,183,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 10% 80%, rgba(96,165,250,.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(244,114,182,.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Dot grid */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image: radial-gradient(rgba(110,231,183,.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+.app {
+  position: relative; z-index: 1;
+  max-width: 660px; margin: 0 auto;
+  padding: 20px 16px 80px;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center; margin-bottom: 24px;
+  animation: fade-down .6s ease;
+}
+.header h1 {
+  font-family: 'Crimson Pro', serif;
+  font-size: 2.4rem; font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(110,231,183,.3);
+  letter-spacing: -1px;
+}
+.header p { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+
+/* ── NAV ── */
+.nav {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 22px;
+  animation: fade-up .6s ease .1s both;
+}
+.nav-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted); padding: 8px 16px; border-radius: 30px;
+  cursor: pointer; font-size: .82rem; font-weight: 500;
+  transition: .25s; font-family: 'DM Sans', sans-serif;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: flex; gap: 10px; justify-content: center;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.stat-chip {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px 14px; text-align: center; min-width: 72px;
+}
+.stat-chip .sv { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+.stat-chip .sl { font-size: .65rem; color: var(--muted); margin-top: 1px; }
+
+/* ── MAIN VOCAB CARD ── */
+.vocab-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 26px;
+  margin-bottom: 16px;
+  box-shadow: 0 12px 50px rgba(0,0,0,.5);
+  position: relative; overflow: hidden;
+  animation: card-enter .4s ease;
+}
+
+/* shimmer top bar */
+.vocab-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--blue), var(--accent2));
+  border-radius: 24px 24px 0 0;
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(18px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* word number badge */
+.card-num {
+  position: absolute; top: 16px; right: 18px;
+  font-size: .7rem; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 2px 9px; border-radius: 10px;
+}
+
+/* ── WORD HEADER ── */
+.word-row {
+  display: flex; align-items: flex-start;
+  gap: 14px; margin-bottom: 4px;
+}
+.the-word {
+  font-family: 'Crimson Pro', serif;
+  font-size: 2.6rem; font-weight: 700;
+  color: var(--text); line-height: 1.1;
+  flex: 1;
+}
+.speak-btn {
+  background: rgba(110,231,183,.12);
+  border: 1px solid rgba(110,231,183,.35);
+  color: var(--accent); border-radius: 12px;
+  width: 46px; height: 46px; cursor: pointer;
+  font-size: 1.2rem; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: .2s; margin-top: 6px;
+}
+.speak-btn:hover { background: var(--accent); color: #000; transform: scale(1.08); }
+.speak-btn.speaking { animation: pulse-speak .6s infinite alternate; }
+@keyframes pulse-speak {
+  from { box-shadow: 0 0 0 0 rgba(110,231,183,.4); }
+  to   { box-shadow: 0 0 0 10px rgba(110,231,183,0); }
+}
+
+/* phonetic */
+.phonetic {
+  font-size: .95rem; color: var(--blue);
+  font-style: italic; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.phonetic span { font-size: .75rem; background: rgba(96,165,250,.12);
+  border: 1px solid rgba(96,165,250,.25); padding: 2px 8px;
+  border-radius: 8px; font-style: normal; }
+
+/* word type badge */
+.word-type {
+  display: inline-block; font-size: .7rem; font-weight: 600;
+  letter-spacing: .8px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 10px; margin-bottom: 14px;
+  background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.3);
+  color: var(--accent3);
+}
+
+/* divider */
+.divider {
+  height: 1px; background: var(--border);
+  margin: 14px 0;
+}
+
+/* meaning rows */
+.meaning-row {
+  display: flex; gap: 10px; margin-bottom: 10px;
+  align-items: flex-start;
+}
+.lang-badge {
+  font-size: .65rem; font-weight: 700; letter-spacing: .5px;
+  padding: 3px 8px; border-radius: 8px; flex-shrink: 0;
+  margin-top: 2px;
+}
+.lang-en { background: rgba(110,231,183,.12); color: var(--accent); border: 1px solid rgba(110,231,183,.25); }
+.lang-hi { background: rgba(244,114,182,.12); color: var(--accent2); border: 1px solid rgba(244,114,182,.25); }
+.meaning-text { font-size: .95rem; line-height: 1.5; }
+
+/* example sentence */
+.example-box {
+  background: var(--surface); border-left: 3px solid var(--blue);
+  border-radius: 0 10px 10px 0; padding: 10px 14px;
+  margin: 12px 0; font-size: .87rem;
+  color: #94a3b8; font-style: italic; line-height: 1.6;
+}
+.example-box b { color: var(--blue); font-style: normal; }
+
+/* mnemonic */
+.mnemonic-box {
+  background: rgba(251,191,36,.07);
+  border: 1px solid rgba(251,191,36,.2);
+  border-radius: 12px; padding: 12px 14px;
+  margin-top: 12px;
+}
+.mnemonic-label {
+  font-size: .68rem; font-weight: 700; color: var(--accent3);
+  letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px;
+}
+.mnemonic-text { font-size: .88rem; color: #d4a017; line-height: 1.5; }
+
+/* synonyms / antonyms */
+.syn-ant-row {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+}
+.syn-ant-box { flex: 1; min-width: 130px; }
+.sa-label { font-size: .68rem; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; margin-bottom: 6px; }
+.sa-label.syn { color: var(--green); }
+.sa-label.ant { color: var(--red); }
+.sa-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.sa-pill {
+  font-size: .75rem; padding: 3px 9px; border-radius: 10px; cursor: pointer;
+  transition: .15s;
+}
+.sa-pill.syn { background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); color: var(--green); }
+.sa-pill.ant { background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3); color: var(--red); }
+.sa-pill:hover { transform: scale(1.06); }
+
+/* ── CARD CONTROLS ── */
+.card-controls {
+  display: flex; gap: 10px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 22px;
+}
+.ctrl-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 11px 20px; border-radius: 14px; font-size: .88rem;
+  font-weight: 600; cursor: pointer; border: 1px solid transparent;
+  transition: .25s; font-family: 'DM Sans', sans-serif;
+}
+.ctrl-btn:hover { transform: translateY(-2px); }
+.btn-knew  { background: rgba(52,211,153,.1); border-color: var(--green); color: var(--green); }
+.btn-knew:hover  { background: var(--green); color: #000; }
+.btn-hard  { background: rgba(248,113,113,.1); border-color: var(--red); color: var(--red); }
+.btn-hard:hover  { background: var(--red); color: #fff; }
+.btn-next  { background: rgba(96,165,250,.1); border-color: var(--blue); color: var(--blue); }
+.btn-next:hover  { background: var(--blue); color: #000; }
+.btn-speak { background: rgba(110,231,183,.1); border-color: var(--accent); color: var(--accent); }
+.btn-speak:hover { background: var(--accent); color: #000; }
+
+/* progress bar */
+.prog-track { background: var(--border); border-radius: 8px; height: 5px; margin-bottom: 18px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 8px;
+  background: linear-gradient(90deg, var(--accent), var(--blue)); transition: width .5s ease; }
+
+/* ── QUIZ MODE ── */
+.quiz-question {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+  animation: card-enter .4s ease;
+}
+.quiz-question::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent3));
+  border-radius: 20px 20px 0 0;
+}
+.quiz-mode-label {
+  font-size: .7rem; font-weight: 700; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--accent2); margin-bottom: 10px;
+}
+.quiz-q-text {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.5rem; font-weight: 600; line-height: 1.4;
+  margin-bottom: 6px;
+}
+.quiz-q-hint { font-size: .8rem; color: var(--muted); }
+
+.quiz-opt {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 13px 16px; margin: 9px 0;
+  cursor: pointer; font-size: .92rem; text-align: left;
+  transition: .2s; display: flex; align-items: center; gap: 12px;
+}
+.quiz-opt:hover { border-color: var(--accent); transform: translateX(4px); }
+.quiz-opt.correct { background: rgba(52,211,153,.12); border-color: var(--green); color: var(--green); }
+.quiz-opt.wrong   { background: rgba(248,113,113,.12); border-color: var(--red); color: var(--red); }
+.opt-key {
+  width: 28px; height: 28px; border-radius: 8px; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .8rem; flex-shrink: 0;
+}
+.quiz-fb {
+  text-align: center; padding: 12px 16px; border-radius: 14px;
+  margin-top: 12px; font-weight: 600; font-size: .95rem;
+  animation: pop-in .3s ease;
+}
+.quiz-fb.ok { background: rgba(52,211,153,.1); color: var(--green); }
+.quiz-fb.no { background: rgba(248,113,113,.1); color: var(--red); }
+
+/* ── FORM ── */
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 22px; margin-bottom: 18px;
+  animation: fade-up .4s ease;
+}
+.form-card h3 { font-size: 1rem; margin-bottom: 16px; color: var(--accent); }
+.field { margin-bottom: 13px; }
+.field label { display: block; font-size: .75rem; color: var(--muted);
+  margin-bottom: 5px; font-weight: 500; letter-spacing: .3px; }
+.field input, .field textarea, .field select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); padding: 10px 13px;
+  font-size: .88rem; font-family: 'DM Sans', sans-serif; outline: none; transition: .2s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+.field select option { background: var(--surface); }
+.field textarea { resize: vertical; }
+
+.btn-primary {
+  width: 100%; padding: 13px; border-radius: 12px;
+  background: var(--accent); color: #000; font-weight: 700;
+  font-size: .92rem; cursor: pointer; border: none;
+  font-family: 'DM Sans', sans-serif; transition: .2s;
+}
+.btn-primary:hover { background: #a7f3d0; transform: translateY(-1px); }
+.btn-danger {
+  padding: 8px 15px; border-radius: 10px; font-size: .78rem;
+  background: rgba(248,113,113,.1); border: 1px solid var(--red);
+  color: var(--red); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: .2s;
+}
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+/* manage list */
+.word-list-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 13px 15px; margin: 7px 0;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; animation: fade-up .3s ease;
+}
+.wli-word { font-family: 'Crimson Pro', serif; font-size: 1.15rem; font-weight: 600; }
+.wli-mean { font-size: .8rem; color: var(--muted); }
+.wli-ph   { font-size: .75rem; color: var(--blue); font-style: italic; }
+
+/* result */
+.result-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 22px; padding: 30px; text-align: center;
+  animation: scale-in .5s ease;
+}
+.result-pct {
+  font-family: 'Crimson Pro', serif;
+  font-size: 4rem; font-weight: 700; color: var(--accent);
+  text-shadow: 0 0 30px rgba(110,231,183,.4);
+}
+
+/* progress bars */
+.prog-bar-row { margin: 10px 0; }
+.pb-label { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: 4px; }
+.pb-bg { background: var(--border); border-radius: 8px; height: 9px; overflow: hidden; }
+.pb-fill { height: 100%; border-radius: 8px; transition: width .6s ease; }
+
+/* category pills */
+.cat-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+.cat-pill {
+  padding: 5px 13px; border-radius: 20px; font-size: .76rem;
+  font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: .2s;
+}
+
+/* empty state */
+.empty { text-align: center; padding: 50px 20px; color: var(--muted); font-size: .88rem; }
+.empty .ei { font-size: 3rem; margin-bottom: 10px; }
+
+/* quiz setup */
+.quiz-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.qtype-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 16px; cursor: pointer; transition: .2s; text-align: center;
+}
+.qtype-card:hover, .qtype-card.active { border-color: var(--accent); background: rgba(110,231,183,.06); }
+.qtype-card .qi { font-size: 1.6rem; margin-bottom: 6px; }
+.qtype-card .qt { font-size: .82rem; font-weight: 600; }
+.qtype-card .qd { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+
+.hidden { display: none !important; }
+
+/* animations */
+@keyframes fade-down { from{opacity:0;transform:translateY(-18px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fade-up   { from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);} }
+@keyframes scale-in  { from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);} }
+@keyframes pop-in    { 0%{transform:scale(.7);opacity:0;}70%{transform:scale(1.06);}100%{transform:scale(1);opacity:1;} }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* streak badge */
+#streak-badge {
+  position: fixed; top: 14px; left: 14px; z-index: 999;
+  background: rgba(251,191,36,.15); border: 1px solid var(--accent3);
+  color: var(--accent3); border-radius: 20px; padding: 5px 12px;
+  font-size: .8rem; font-weight: 700;
+}
+</style>
+</head>
+<body>
+
+<div id="streak-badge" class="hidden">🔥 <span id="streak-num">0</span> streak</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>📖 Vocab Master</h1>
+    <p>SSC CGL / CHSL — Sun, Samjho, Yaad Karo</p>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="goTab('study')">📚 Study</button>
+    <button class="nav-btn" onclick="goTab('quiz')">🎯 Quiz</button>
+    <button class="nav-btn" onclick="goTab('add')">➕ Add Word</button>
+    <button class="nav-btn" onclick="goTab('manage')">🗂 Manage</button>
+    <button class="nav-btn" onclick="goTab('progress')">📊 Progress</button>
+  </div>
+
+  <!-- ══════════ STUDY TAB ══════════ -->
+  <div id="tab-study">
+
+    <div class="stats-bar">
+      <div class="stat-chip"><div class="sv" id="st-total">0</div><div class="sl">Words</div></div>
+      <div class="stat-chip"><div class="sv" id="st-knew" style="color:var(--green)">0</div><div class="sl">Knew ✅</div></div>
+      <div class="stat-chip"><div class="sv" id="st-hard" style="color:var(--red)">0</div><div class="sl">Hard ❌</div></div>
+      <div class="stat-chip"><div class="sv" id="st-streak" style="color:var(--accent3)">0</div><div class="sl">Streak 🔥</div></div>
+    </div>
+
+    <div class="cat-row" id="study-cats"></div>
+    <div class="prog-track"><div class="prog-fill" id="study-prog" style="width:0%"></div></div>
+
+    <!-- VOCAB CARD -->
+    <div id="vocab-card-wrap">
+      <div class="vocab-card" id="vocab-card">
+        <div class="card-num" id="card-num">1/1</div>
+
+        <div class="word-row">
+          <div class="the-word" id="vc-word">Ephemeral</div>
+          <button class="speak-btn" id="speak-btn" onclick="speakWord()" title="Suniye pronunciation">🔊</button>
+        </div>
+
+        <div class="phonetic" id="vc-phonetic">
+          <span>PHONETIC</span> ih-FEM-er-ul
+        </div>
+
+        <div class="word-type" id="vc-type">Adjective</div>
+
+        <div class="divider"></div>
+
+        <div class="meaning-row">
+          <div class="lang-badge lang-en">EN</div>
+          <div class="meaning-text" id="vc-en">Lasting for a very short time</div>
+        </div>
+        <div class="meaning-row">
+          <div class="lang-badge lang-hi">हिं</div>
+          <div class="meaning-text" id="vc-hi" style="color:var(--accent2);">क्षणिक, अल्पकालिक</div>
+        </div>
+
+        <div class="example-box" id="vc-example">
+          Fame is <b>ephemeral</b> — it lasts only a short while.
+        </div>
+
+        <div class="mnemonic-box" id="vc-mnemonic-box">
+          <div class="mnemonic-label">💡 Memory Trick (Yaad Karo)</div>
+          <div class="mnemonic-text" id="vc-mnemonic">Ephemeral = "Ek pal" — sirf ek pal ke liye rehta hai!</div>
+        </div>
+
+        <div class="syn-ant-row" id="vc-synant">
+          <div class="syn-ant-box">
+            <div class="sa-label syn">Synonyms</div>
+            <div class="sa-pills" id="vc-syn"></div>
+          </div>
+          <div class="syn-ant-box">
+            <div class="sa-label ant">Antonyms</div>
+            <div class="sa-pills" id="vc-ant"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-controls">
+      <button class="ctrl-btn btn-knew" onclick="markWord(true)">✅ Knew It</button>
+      <button class="ctrl-btn btn-hard" onclick="markWord(false)">❌ Hard</button>
+      <button class="ctrl-btn btn-speak" onclick="speakWord()">🔊 Listen</button>
+      <button class="ctrl-btn btn-next" onclick="nextWord()">Next ➡</button>
+    </div>
+
+    <!-- Session done -->
+    <div id="study-done" class="hidden result-box">
+      <div style="font-size:2.5rem;margin-bottom:8px;">🎉</div>
+      <div class="result-pct" id="sd-pct">0%</div>
+      <div style="color:var(--muted);margin:8px 0 20px;" id="sd-msg"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="ctrl-btn btn-knew" onclick="restartStudy(false)">🔄 All Words</button>
+        <button class="ctrl-btn btn-hard" onclick="restartStudy(true)">🔁 Hard Words Only</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ TAB ══════════ -->
+  <div id="tab-quiz" class="hidden">
+
+    <!-- Setup -->
+    <div id="quiz-setup">
+      <div class="form-card">
+        <h3>🎯 Quiz Mode Chunein</h3>
+        <div class="quiz-type-grid">
+          <div class="qtype-card active" onclick="selectQType('meaning', this)">
+            <div class="qi">📝</div>
+            <div class="qt">Word → Meaning</div>
+            <div class="qd">Word dekho, meaning chunein</div>
+          </div>
+          <div class="qtype-card" onclick="selectQType('word', this)">
+            <div class="qi">🔤</div>
+            <div class="qt">Meaning → Word</div>
+            <div class="qd">Meaning dekho, word chunein</div>
+          </div>
+          <div class="qtype-card" onclick="selectQType('listen', this)">
+            <div class="qi">🔊</div>
+            <div class="qt">Listen → Word</div>
+            <div class="qd">Sunke word identify karo</div>
+          </div>
+          <div class="qtype-card" onclick="selectQType('synonym', this)">
+            <div class="qi">🔗</div>
+            <div class="qt">Synonym Quiz</div>
+            <div class="qd">Sahi synonym chunein</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Number of Questions</label>
+          <select id="qz-count">
+            <option value="10">10 Questions</option>
+            <option value="20" selected>20 Questions</option>
+            <option value="30">30 Questions</option>
+            <option value="999">All Words</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="startQuiz()">Start Quiz 🚀</button>
+      </div>
+    </div>
+
+    <!-- Active quiz -->
+    <div id="quiz-active" class="hidden">
+      <div class="stats-bar">
+        <div class="stat-chip"><div class="sv" id="qz-num">1</div><div class="sl">Question</div></div>
+        <div class="stat-chip"><div class="sv" id="qz-score" style="color:var(--green)">0</div><div class="sl">Correct</div></div>
+        <div class="stat-chip"><div class="sv" id="qz-wrong-ct" style="color:var(--red)">0</div><div class="sl">Wrong</div></div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="qz-prog" style="width:0%"></div></div>
+
+      <div class="quiz-question" id="qz-question">
+        <div class="quiz-mode-label" id="qz-mode-label">WORD → MEANING</div>
+        <div class="quiz-q-text" id="qz-q-text">Loading...</div>
+        <div class="quiz-q-hint" id="qz-q-hint"></div>
+        <button class="ctrl-btn btn-speak hidden" id="qz-speak-btn" onclick="speakQuizWord()" style="margin-top:10px;">🔊 Word Suniye</button>
+      </div>
+
+      <div id="qz-opts"></div>
+      <div id="qz-feedback" class="hidden quiz-fb"></div>
+      <button class="ctrl-btn btn-next hidden" id="qz-next-btn" onclick="nextQuizQ()" style="margin:14px auto;display:flex;">Next ➡</button>
+    </div>
+
+    <!-- Result -->
+    <div id="quiz-result" class="hidden result-box">
+      <div style="font-size:2.5rem;margin-bottom:6px;">🏆</div>
+      <div class="result-pct" id="qz-res-pct">0%</div>
+      <div style="color:var(--muted);margin:8px 0;" id="qz-res-msg"></div>
+      <div class="stats-bar" style="margin:14px 0;">
+        <div class="stat-chip"><div class="sv" id="qr-c" style="color:var(--green)">0</div><div class="sl">Correct</div></div>
+        <div class="stat-chip"><div class="sv" id="qr-w" style="color:var(--red)">0</div><div class="sl">Wrong</div></div>
+        <div class="stat-chip"><div class="sv" id="qr-t">0</div><div class="sl">Total</div></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="ctrl-btn btn-speak" onclick="showQuizSetup()">🔄 Again</button>
+        <button class="ctrl-btn btn-hard" onclick="reviseWrong()">📝 Revise Wrong</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ ADD WORD TAB ══════════ -->
+  <div id="tab-add" class="hidden">
+    <div class="form-card">
+      <h3>➕ Naya Word Add Karo</h3>
+      <div class="field"><label>Word *</label><input type="text" id="add-word" placeholder="e.g. Ephemeral"></div>
+      <div class="field"><label>Phonetic (pronunciation) *</label><input type="text" id="add-ph" placeholder="e.g. ih-FEM-er-ul"></div>
+      <div class="field"><label>Word Type</label>
+        <select id="add-type">
+          <option>Adjective</option><option>Noun</option><option>Verb</option>
+          <option>Adverb</option><option>Phrase</option>
+        </select>
+      </div>
+      <div class="field"><label>English Meaning *</label><input type="text" id="add-en" placeholder="e.g. Lasting for a very short time"></div>
+      <div class="field"><label>Hindi Meaning *</label><input type="text" id="add-hi" placeholder="e.g. क्षणिक, अल्पकालिक"></div>
+      <div class="field"><label>Example Sentence</label><textarea id="add-ex" rows="2" placeholder="e.g. Fame is ephemeral — it lasts only a short while."></textarea></div>
+      <div class="field"><label>Memory Trick (Mnemonic) 💡</label><textarea id="add-mn" rows="2" placeholder='e.g. Ephemeral = "Ek pal" — sirf ek pal ke liye!'></textarea></div>
+      <div class="field"><label>Synonyms (comma separated)</label><input type="text" id="add-syn" placeholder="e.g. transient, fleeting, momentary"></div>
+      <div class="field"><label>Antonyms (comma separated)</label><input type="text" id="add-ant" placeholder="e.g. permanent, eternal, lasting"></div>
+      <button class="btn-primary" onclick="addWord()">Add Word ✚</button>
+      <div id="add-msg" style="margin-top:10px;font-size:.85rem;text-align:center;"></div>
+    </div>
+
+    <div class="form-card">
+      <h3>⚡ SSC Word List Load Karo</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">100+ high-frequency SSC vocab words — meanings, phonetics, Hindi, mnemonics sab ke saath!</p>
+      <button class="btn-primary" onclick="loadSampleWords()">Load SSC Word List 📦</button>
+      <div id="sample-msg" style="margin-top:10px;font-size:.85rem;text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ MANAGE TAB ══════════ -->
+  <div id="tab-manage" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <h3 style="color:var(--accent);">🗂 All Words (<span id="mg-count">0</span>)</h3>
+      <button class="btn-danger" onclick="clearAll()">🗑 Clear All</button>
+    </div>
+    <div id="word-list"></div>
+  </div>
+
+  <!-- ══════════ PROGRESS TAB ══════════ -->
+  <div id="tab-progress" class="hidden">
+    <div class="stats-bar">
+      <div class="stat-chip"><div class="sv" id="pr-total">0</div><div class="sl">Total</div></div>
+      <div class="stat-chip"><div class="sv" id="pr-mastered" style="color:var(--green)">0</div><div class="sl">Mastered 🏆</div></div>
+      <div class="stat-chip"><div class="sv" id="pr-hard" style="color:var(--red)">0</div><div class="sl">Hard Words</div></div>
+    </div>
+    <div id="pr-bars" style="margin-top:20px;"></div>
+    <div style="margin-top:20px;text-align:center;">
+      <button class="btn-danger" onclick="resetProgress()">🔄 Reset Progress</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════
+//  SSC WORD DATABASE
+// ══════════════════════════════════
+const SSC_WORDS = [
+  {word:'Ephemeral',ph:'ih-FEM-er-ul',type:'Adjective',en:'Lasting for a very short time',hi:'क्षणिक, अल्पकालिक',ex:'Fame is ephemeral — it lasts only a short while.',mn:'"Ek pal" — sirf ek pal ke liye rehta hai!',syn:['transient','fleeting','momentary','brief'],ant:['permanent','eternal','lasting','enduring']},
+  {word:'Loquacious',ph:'loh-KWAY-shus',type:'Adjective',en:'Tending to talk a great deal; talkative',hi:'बातूनी, वाचाल',ex:'The loquacious student kept asking questions.',mn:'"Loki" bahut bolta hai — loquacious = bahut bolta hai!',syn:['talkative','garrulous','verbose','chatty'],ant:['taciturn','reticent','silent','quiet']},
+  {word:'Benevolent',ph:'beh-NEV-oh-lent',type:'Adjective',en:'Well meaning and kindly; generous',hi:'परोपकारी, दयालु',ex:'The benevolent king gave food to the poor.',mn:'"Bane" + "volent" — bane = bana deta hai acha, volent = volunteer. Dil se help karta hai!',syn:['generous','kind','charitable','philanthropic'],ant:['malevolent','cruel','selfish','mean']},
+  {word:'Ambiguous',ph:'am-BIG-yoo-us',type:'Adjective',en:'Open to more than one interpretation; unclear',hi:'अस्पष्ट, दोहरे अर्थ वाला',ex:'The ambiguous statement confused everyone.',mn:'"Ambi" = dono taraf. Dono taraf ja sakta hai — matlab clear nahi!',syn:['vague','unclear','obscure','equivocal'],ant:['clear','explicit','definite','unambiguous']},
+  {word:'Magnanimous',ph:'mag-NAN-ih-mus',type:'Adjective',en:'Generous and forgiving, especially to rivals',hi:'उदार, महान हृदय वाला',ex:'The magnanimous leader forgave his enemies.',mn:'"Magna" = bada, "animus" = mann. Bada dil rakhna!',syn:['generous','noble','forgiving','gracious'],ant:['petty','selfish','mean','vindictive']},
+  {word:'Obdurate',ph:'OB-dyoo-rit',type:'Adjective',en:'Stubbornly refusing to change one\'s opinion',hi:'हठी, जिद्दी',ex:'The obdurate minister refused to listen.',mn:'"Ob-door-ate" — darwaza band kar liya, koi ander nahi aayega! Zabardast zid!',syn:['stubborn','obstinate','inflexible','unyielding'],ant:['flexible','compliant','amenable','yielding']},
+  {word:'Verbose',ph:'ver-BOHS',type:'Adjective',en:'Using more words than needed; wordy',hi:'अत्यधिक शब्दों का प्रयोग करने वाला',ex:'His verbose essay was difficult to read.',mn:'"Verb" + "ose" — bahut saare verbs, yani bahut zyada words!',syn:['wordy','long-winded','loquacious','garrulous'],ant:['concise','terse','succinct','brief']},
+  {word:'Perspicacious',ph:'pur-spih-KAY-shus',type:'Adjective',en:'Having a ready insight; shrewd',hi:'तीव्र बुद्धि वाला, कुशाग्र',ex:'The perspicacious detective solved the mystery quickly.',mn:'"Per-spect" = clearly dekhna. Jo saaf saaf sab dekh le!',syn:['shrewd','astute','perceptive','sharp'],ant:['obtuse','dull','ignorant','dense']},
+  {word:'Gregarious',ph:'greh-GAIR-ee-us',type:'Adjective',en:'Fond of company; sociable',hi:'मिलनसार, सामाजिक',ex:'She is gregarious and loves meeting new people.',mn:'"Greg" sounds like "group" — group mein rehna pasand hai!',syn:['sociable','outgoing','extrovert','friendly'],ant:['solitary','antisocial','introverted','reclusive']},
+  {word:'Spurious',ph:'SPYOOR-ee-us',type:'Adjective',en:'Not genuine; false or fake',hi:'नकली, जाली, मिथ्या',ex:'The police found spurious currency notes.',mn:'"Spoor" = jhootha pata — spurious bhi jhootha hota hai!',syn:['fake','counterfeit','bogus','fraudulent'],ant:['genuine','authentic','real','legitimate']},
+  {word:'Ameliorate',ph:'uh-MEEL-yuh-rayt',type:'Verb',en:'To make something bad better; to improve',hi:'सुधारना, बेहतर बनाना',ex:'The government tried to ameliorate poverty.',mn:'"A-melio-rate" — "meli" sounds like "meli" (mixed/better). Milake behtar bana do!',syn:['improve','enhance','alleviate','rectify'],ant:['worsen','aggravate','deteriorate','damage']},
+  {word:'Equivocate',ph:'ih-KWIV-oh-kayt',type:'Verb',en:'To use vague language to avoid commitment',hi:'दोहरी बात करना, टालमटोल करना',ex:'The politician equivocated when asked about corruption.',mn:'"Equi" = equal, "vocal" = baat. Dono taraf equal baat karta hai — commitment nahi!',syn:['hedge','prevaricate','evade','waffle'],ant:['assert','clarify','commit','affirm']},
+  {word:'Enervate',ph:'EN-er-vayt',type:'Verb',en:'To make someone feel drained of energy',hi:'शक्तिहीन करना, थका देना',ex:'The long exam enervated the students.',mn:'"Energy" + "ate" — energy kha jaata hai! Thaka deta hai.',syn:['weaken','exhaust','fatigue','debilitate'],ant:['energize','invigorate','strengthen','vitalize']},
+  {word:'Exacerbate',ph:'ig-ZAS-er-bayt',type:'Verb',en:'To make worse or more severe',hi:'बिगाड़ना, और खराब करना',ex:'The rain exacerbated the flood situation.',mn:'"Ex" = zyada + "acerbate" sounds like "acerbic" (tez). Aur tez, aur bura kar deta hai!',syn:['worsen','aggravate','intensify','inflame'],ant:['alleviate','improve','soothe','mitigate']},
+  {word:'Inveterate',ph:'in-VET-er-it',type:'Adjective',en:'Having a habit or activity for a long time',hi:'पुराना, जड़ी हुई आदत वाला',ex:'He is an inveterate smoker.',mn:'"In-vet-erate" — vet (purana doctor) — bahut purani baat!',syn:['habitual','chronic','ingrained','confirmed'],ant:['occasional','temporary','reformed','new']},
+  {word:'Pernicious',ph:'per-NISH-us',type:'Adjective',en:'Having a harmful effect, especially gradually',hi:'हानिकारक, घातक',ex:'Corruption has a pernicious effect on society.',mn:'"Per-nish" — slowly "finish" kar deta hai! Dheere dheere khatam karta hai.',syn:['harmful','destructive','deadly','malicious'],ant:['beneficial','harmless','helpful','wholesome']},
+  {word:'Laconic',ph:'luh-KON-ik',type:'Adjective',en:'Using very few words; brief and concise',hi:'संक्षिप्त, कम शब्दों में कहने वाला',ex:'His laconic reply was just "No."',mn:'"La-conic" — "cone" jitna pointed — ekdum seedhi, pointed baat!',syn:['concise','terse','brief','succinct'],ant:['verbose','wordy','loquacious','garrulous']},
+  {word:'Recalcitrant',ph:'rih-KAL-sih-trunt',type:'Adjective',en:'Uncooperative; resisting authority',hi:'विद्रोही, अड़ियल',ex:'The recalcitrant student refused to follow rules.',mn:'"Re-cal-ci" — "recall" nahi karta — yaad hi nahi rakhta rules!',syn:['defiant','unruly','rebellious','obstinate'],ant:['compliant','obedient','cooperative','submissive']},
+  {word:'Diligent',ph:'DIL-ih-junt',type:'Adjective',en:'Having or showing careful and persistent effort',hi:'परिश्रमी, मेहनती',ex:'A diligent student always scores well.',mn:'"Dil" + "igent" — dil lagakar kaam karna! Dil se mehnat!',syn:['hardworking','industrious','assiduous','painstaking'],ant:['lazy','idle','negligent','careless']},
+  {word:'Prudent',ph:'PROO-dunt',type:'Adjective',en:'Acting with care and thought for the future',hi:'विवेकशील, सावधान',ex:'It is prudent to save money for emergencies.',mn:'"Pru-dent" — "future" ke liye "dental" check-up jaisi care!',syn:['wise','cautious','judicious','sensible'],ant:['imprudent','reckless','careless','foolish']},
+  {word:'Frugal',ph:'FROO-gul',type:'Adjective',en:'Sparing in use of food or money; economical',hi:'किफ़ायती, मितव्ययी',ex:'She leads a frugal life, saving every rupee.',mn:'"Frugal" — "frug" sounds like "phrug" (froze) — paisa freeze karke rakhta hai!',syn:['thrifty','economical','sparing','parsimonious'],ant:['wasteful','extravagant','lavish','prodigal']},
+  {word:'Erudite',ph:'EHR-yoo-dite',type:'Adjective',en:'Having or showing great knowledge',hi:'विद्वान, पंडित',ex:'The erudite professor wrote many books.',mn:'"Eru-dite" — "education" ka dite (diya) — bahut padha-likha!',syn:['learned','scholarly','knowledgeable','intellectual'],ant:['ignorant','illiterate','uneducated','unread']},
+  {word:'Taciturn',ph:'TAS-ih-turn',type:'Adjective',en:'Reserved or uncommunicative; saying little',hi:'मौनी, अल्पभाषी',ex:'The taciturn man rarely spoke at meetings.',mn:'"Tacit" = chup rehna. Taciturn = hamesha chup!',syn:['silent','reserved','reticent','uncommunicative'],ant:['talkative','loquacious','garrulous','verbose']},
+  {word:'Impetuous',ph:'im-PECH-oo-us',type:'Adjective',en:'Acting quickly without thought; hasty',hi:'आवेगशील, जल्दबाज़',ex:'His impetuous decision cost him the job.',mn:'"Im-pet-uous" — jaise pet (stomach) mein aag lagi ho — bina sooche kood pada!',syn:['hasty','rash','impulsive','reckless'],ant:['cautious','careful','deliberate','prudent']},
+  {word:'Acrimony',ph:'AK-rih-moh-nee',type:'Noun',en:'Bitterness or ill feeling',hi:'कटुता, कड़वाहट',ex:'The divorce was filled with acrimony.',mn:'"Acri" sounds like "acrhi" (achari = pickled/bitter). Bitter baat!',syn:['bitterness','hostility','animosity','rancour'],ant:['goodwill','harmony','friendliness','amity']},
+  {word:'Anomaly',ph:'uh-NOM-uh-lee',type:'Noun',en:'Something that deviates from what is expected',hi:'विसंगति, असामान्यता',ex:'The warm weather in December was an anomaly.',mn:'"A-nom-aly" — "normal" nahi hai — abnormal cheez!',syn:['irregularity','oddity','aberration','exception'],ant:['norm','standard','regularity','conformity']},
+  {word:'Cacophony',ph:'kuh-KOF-uh-nee',type:'Noun',en:'A harsh, discordant mixture of sounds',hi:'कर्कश ध्वनि, बेसुरा शोर',ex:'The cacophony of horns made it impossible to think.',mn:'"Caco" = kaka (crow), "phony" = sound. Kauwe ki awaaz — bekar sound!',syn:['discord','noise','din','clamour'],ant:['harmony','melody','euphony','silence']},
+  {word:'Equanimity',ph:'ee-kwuh-NIM-ih-tee',type:'Noun',en:'Mental calmness in difficult situations',hi:'समभाव, मानसिक संतुलन',ex:'She faced the crisis with great equanimity.',mn:'"Equi" = equal, "anima" = mann. Mann ko equal (balanced) rakhna!',syn:['composure','calmness','serenity','poise'],ant:['anxiety','agitation','turmoil','distress']},
+  {word:'Exorbitant',ph:'ig-ZOR-bih-tunt',type:'Adjective',en:'Unreasonably high in price',hi:'अत्यधिक महंगा, बेतहाशा',ex:'The hotel charged an exorbitant price.',mn:'"Ex-orbit" — orbit se bahar — hadd se zyada!',syn:['excessive','extortionate','steep','overpriced'],ant:['reasonable','modest','fair','affordable']},
+  {word:'Proliferate',ph:'pruh-LIF-er-ayt',type:'Verb',en:'To increase rapidly in number',hi:'तेज़ी से बढ़ना, फैलना',ex:'Mobile phones have proliferated in rural areas.',mn:'"Pro-life-rate" — life rate badhna — bahut tezi se barhna!',syn:['multiply','increase','expand','spread'],ant:['decrease','diminish','dwindle','reduce']},
+  {word:'Vindictive',ph:'vin-DIK-tiv',type:'Adjective',en:'Seeking to harm someone out of revenge',hi:'प्रतिशोधी, बदला लेने वाला',ex:'The vindictive boss punished anyone who disagreed.',mn:'"Vindictive" — "vindicate" (badla) lena chahta hai!',syn:['vengeful','spiteful','revengeful','malicious'],ant:['forgiving','merciful','benevolent','magnanimous']},
+];
+
+// ══════════════════════════════════
+//  DATA MANAGEMENT
+// ══════════════════════════════════
+const KEY_WORDS = 'vm_words';
+const KEY_PROG  = 'vm_prog';  // {id: {knew:n, hard:n}}
+
+let words = JSON.parse(localStorage.getItem(KEY_WORDS)) || [];
+let prog  = JSON.parse(localStorage.getItem(KEY_PROG))  || {};
+
+function saveWords(){ localStorage.setItem(KEY_WORDS, JSON.stringify(words)); }
+function saveProg() { localStorage.setItem(KEY_PROG,  JSON.stringify(prog));  }
+
+function loadSampleWords(){
+  let added = 0;
+  SSC_WORDS.forEach(w => {
+    const id = w.word.toLowerCase();
+    if(!words.some(x => x.word.toLowerCase() === w.word.toLowerCase())){
+      words.push({...w, id});
+      added++;
+    }
+  });
+  saveWords(); updateAll();
+  document.getElementById('sample-msg').innerHTML = `<span style="color:var(--green)">✅ ${added} words added! Total: ${words.length}</span>`;
+  setTimeout(()=>document.getElementById('sample-msg').innerHTML='', 3000);
+}
+
+// ══════════════════════════════════
+//  TEXT TO SPEECH
+// ══════════════════════════════════
+let currentWord = '';
+function speakWord(){
+  if(!currentWord) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(currentWord);
+  utt.lang = 'en-US'; utt.rate = 0.82; utt.pitch = 1;
+  const btn = document.getElementById('speak-btn');
+  btn.classList.add('speaking');
+  utt.onend = () => btn.classList.remove('speaking');
+  window.speechSynthesis.speak(utt);
+}
+function speakText(text, rate=0.82){
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang='en-US'; utt.rate=rate;
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════
+const TABS = ['study','quiz','add','manage','progress'];
+function goTab(t){
+  TABS.forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('hidden', x!==t);
+    document.querySelectorAll('.nav-btn')[TABS.indexOf(x)].classList.toggle('active', x===t);
+  });
+  if(t==='study')    initStudy();
+  if(t==='manage')   renderManage();
+  if(t==='progress') renderProgress();
+  if(t==='quiz')     showQuizSetup();
+}
+
+// ══════════════════════════════════
+//  STUDY MODE
+// ══════════════════════════════════
+let studyQueue=[], studyIdx=0, studyKnew=0, studyHard=0, studyStreak=0, studyCat='all';
+
+function initStudy(hardOnly=false){
+  let pool = [...words];
+  if(hardOnly){
+    pool = words.filter(w=>{ const p=prog[w.id||w.word]; return p&&p.hard>0&&(!p.knew||p.hard>=p.knew); });
+    if(!pool.length) pool=[...words];
+  }
+  // Spaced rep: prioritize hard words
+  studyQueue = pool.sort((a,b)=>{
+    const pa=prog[a.id||a.word]||{knew:0,hard:0};
+    const pb=prog[b.id||b.word]||{knew:0,hard:0};
+    return (pb.hard-pb.knew)-(pa.hard-pa.knew);
+  });
+  studyIdx=0; studyKnew=0; studyHard=0; studyStreak=0;
+  document.getElementById('study-done').classList.add('hidden');
+  document.getElementById('vocab-card-wrap').style.display='';
+  document.querySelectorAll('.card-controls .ctrl-btn').forEach(b=>b.style.display='');
+  updateStudyStats();
+  showWord();
+}
+
+function showWord(){
+  if(!words.length){
+    document.getElementById('vocab-card-wrap').innerHTML='<div class="empty"><div class="ei">📭</div><p>Koi words nahi. "Add Word" tab se add karo ya SSC list load karo.</p></div>';
+    return;
+  }
+  if(studyIdx>=studyQueue.length){ endStudy(); return; }
+  const w=studyQueue[studyIdx];
+  currentWord=w.word;
+
+  document.getElementById('vc-word').innerText=w.word;
+  document.getElementById('vc-phonetic').innerHTML=`<span>PHONETIC</span> ${w.ph||'—'}`;
+  document.getElementById('vc-type').innerText=w.type||'Word';
+  document.getElementById('vc-en').innerText=w.en||'';
+  document.getElementById('vc-hi').innerText=w.hi||'';
+  document.getElementById('vc-example').innerHTML=
+    w.ex ? w.ex.replace(new RegExp(w.word,'gi'),`<b>${w.word}</b>`) : '—';
+
+  if(w.mn){
+    document.getElementById('vc-mnemonic-box').classList.remove('hidden');
+    document.getElementById('vc-mnemonic').innerText=w.mn;
+  } else {
+    document.getElementById('vc-mnemonic-box').classList.add('hidden');
+  }
+
+  // Synonyms
+  const synC=document.getElementById('vc-syn');
+  synC.innerHTML='';
+  (w.syn||[]).forEach(s=>{ const p=document.createElement('span');p.className='sa-pill syn';p.innerText=s;p.onclick=()=>speakText(s);synC.appendChild(p); });
+
+  // Antonyms
+  const antC=document.getElementById('vc-ant');
+  antC.innerHTML='';
+  (w.ant||[]).forEach(a=>{ const p=document.createElement('span');p.className='sa-pill ant';p.innerText=a;p.onclick=()=>speakText(a);antC.appendChild(p); });
+
+  document.getElementById('card-num').innerText=`${studyIdx+1}/${studyQueue.length}`;
+
+  // Re-trigger animation
+  const card=document.getElementById('vocab-card');
+  card.style.animation='none'; void card.offsetWidth; card.style.animation='card-enter .4s ease';
+
+  // Auto-speak
+  setTimeout(()=>speakWord(), 400);
+  updateStudyStats();
+}
+
+function markWord(knew){
+  const w=studyQueue[studyIdx];
+  const key=w.id||w.word;
+  if(!prog[key]) prog[key]={knew:0,hard:0};
+  if(knew){ prog[key].knew++; studyKnew++; studyStreak++;
+    document.getElementById('streak-badge').classList.remove('hidden');
+    document.getElementById('streak-num').innerText=studyStreak;
+  } else {
+    prog[key].hard++; studyHard++; studyStreak=0;
+    document.getElementById('streak-badge').classList.add('hidden');
+  }
+  saveProg();
+  studyIdx++; showWord();
+}
+
+function nextWord(){ studyIdx++; showWord(); }
+
+function updateStudyStats(){
+  document.getElementById('st-total').innerText=words.length;
+  document.getElementById('st-knew').innerText=studyKnew;
+  document.getElementById('st-hard').innerText=studyHard;
+  document.getElementById('st-streak').innerText=studyStreak;
+  const pct=studyQueue.length?Math.round(studyIdx/studyQueue.length*100):0;
+  document.getElementById('study-prog').style.width=pct+'%';
+}
+
+function endStudy(){
+  const total=studyKnew+studyHard;
+  const pct=total?Math.round(studyKnew/total*100):0;
+  document.getElementById('vocab-card-wrap').style.display='none';
+  document.querySelectorAll('.card-controls .ctrl-btn').forEach(b=>b.style.display='none');
+  document.getElementById('sd-pct').innerText=pct+'%';
+  document.getElementById('sd-msg').innerText=
+    pct===100?'🏆 Perfect! Sab words yaad ho gaye!':
+    pct>=80  ?'🌟 Bahut badhiya! Almost master!':
+    pct>=50  ?'👍 Achha! Hard words dobara karo.':
+              '💪 Roz practice karo — zaroor yaad hoga!';
+  document.getElementById('study-done').classList.remove('hidden');
+  document.getElementById('streak-badge').classList.add('hidden');
+}
+
+function restartStudy(hardOnly){
+  document.getElementById('study-done').classList.add('hidden');
+  document.getElementById('vocab-card-wrap').style.display='';
+  document.querySelectorAll('.card-controls .ctrl-btn').forEach(b=>b.style.display='');
+  initStudy(hardOnly);
+}
+
+// ══════════════════════════════════
+//  QUIZ MODE
+// ══════════════════════════════════
+let quizType='meaning', quizQ=[], quizIdx=0, quizCorrect=0, quizWrongCt=0;
+let quizAnswered=false, quizWrongIds=[], quizCurrentWord='';
+
+function selectQType(type, el){
+  quizType=type;
+  document.querySelectorAll('.qtype-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+function showQuizSetup(){
+  document.getElementById('quiz-setup').classList.remove('hidden');
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+}
+function startQuiz(){
+  if(words.length<4){ alert('Quiz ke liye kam se kam 4 words chahiye!'); return; }
+  const count=parseInt(document.getElementById('qz-count').value);
+  quizQ=[...words].sort(()=>Math.random()-.5).slice(0,Math.min(count,words.length));
+  quizIdx=0; quizCorrect=0; quizWrongCt=0; quizWrongIds=[];
+  document.getElementById('quiz-setup').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+  showQuizQ();
+}
+
+function showQuizQ(){
+  if(quizIdx>=quizQ.length){ endQuiz(); return; }
+  quizAnswered=false;
+  const w=quizQ[quizIdx];
+  quizCurrentWord=w.word;
+
+  document.getElementById('qz-num').innerText=quizIdx+1;
+  document.getElementById('qz-score').innerText=quizCorrect;
+  document.getElementById('qz-wrong-ct').innerText=quizWrongCt;
+  document.getElementById('qz-prog').style.width=(quizIdx/quizQ.length*100)+'%';
+  document.getElementById('qz-feedback').classList.add('hidden');
+  document.getElementById('qz-next-btn').classList.add('hidden');
+  document.getElementById('qz-speak-btn').classList.add('hidden');
+
+  let qText='', hint='', correct='';
+  const labels = {meaning:'WORD → MEANING',word:'MEANING → WORD',listen:'LISTEN → WORD',synonym:'SYNONYM QUIZ'};
+  document.getElementById('qz-mode-label').innerText=labels[quizType];
+
+  if(quizType==='meaning'){
+    qText=w.word; hint=`[ ${w.ph} ]`; correct=w.en;
+    buildQuizOpts(correct, words.map(x=>x.en), w);
+  } else if(quizType==='word'){
+    qText=w.en; hint='Sahi word chunein'; correct=w.word;
+    buildQuizOpts(correct, words.map(x=>x.word), w);
+  } else if(quizType==='listen'){
+    qText='🔊 Word Suniye aur identify karo'; hint=''; correct=w.word;
+    document.getElementById('qz-speak-btn').classList.remove('hidden');
+    buildQuizOpts(correct, words.map(x=>x.word), w);
+    setTimeout(()=>speakText(w.word), 300);
+  } else if(quizType==='synonym'){
+    const syns=w.syn||[];
+    if(syns.length===0){ quizIdx++; showQuizQ(); return; }
+    correct=syns[0];
+    qText=`"${w.word}" ka synonym kya hai?`;
+    hint=`Meaning: ${w.en}`;
+    const otherSyns=words.flatMap(x=>x.syn||[]).filter(s=>s!==correct);
+    buildQuizOpts(correct, otherSyns, w);
+  }
+
+  document.getElementById('qz-q-text').innerText=qText;
+  document.getElementById('qz-q-hint').innerText=hint;
+}
+
+function buildQuizOpts(correct, pool, w){
+  const wrongs=[...new Set(pool.filter(x=>x&&x!==correct))].sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[correct,...wrongs].sort(()=>Math.random()-.5);
+  const container=document.getElementById('qz-opts');
+  container.innerHTML='';
+  opts.forEach((o,i)=>{
+    const div=document.createElement('div');
+    div.className='quiz-opt';
+    div.innerHTML=`<div class="opt-key">${'ABCD'[i]}</div><span>${o}</span>`;
+    div.onclick=()=>answerQuiz(o, correct, div, w);
+    container.appendChild(div);
+  });
+}
+
+function answerQuiz(chosen, correct, el, w){
+  if(quizAnswered) return;
+  quizAnswered=true;
+  const isOk = chosen===correct;
+  if(isOk){ quizCorrect++; } else { quizWrongCt++; quizWrongIds.push(w.id||w.word); }
+
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    const txt=b.querySelector('span').innerText;
+    if(txt===correct) b.classList.add('correct');
+    else if(txt===chosen&&!isOk) b.classList.add('wrong');
+    b.onclick=null;
+  });
+
+  const fb=document.getElementById('qz-feedback');
+  fb.className='quiz-fb'+(isOk?' ok':' no');
+  if(isOk){
+    fb.innerText='✅ Sahi Jawab! Shabash!';
+    speakText('Correct!', 1);
+  } else {
+    fb.innerText=`❌ Galat! Sahi tha: "${correct}"`;
+    speakText(w.word, 0.75);
+  }
+  fb.classList.remove('hidden');
+  document.getElementById('qz-next-btn').classList.remove('hidden');
+  document.getElementById('qz-score').innerText=quizCorrect;
+  document.getElementById('qz-wrong-ct').innerText=quizWrongCt;
+}
+
+function nextQuizQ(){ quizIdx++; showQuizQ(); }
+function speakQuizWord(){ speakText(quizCurrentWord, 0.75); }
+
+function endQuiz(){
+  const total=quizCorrect+quizWrongCt;
+  const pct=total?Math.round(quizCorrect/total*100):0;
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-result').classList.remove('hidden');
+  document.getElementById('qz-res-pct').innerText=pct+'%';
+  document.getElementById('qr-c').innerText=quizCorrect;
+  document.getElementById('qr-w').innerText=quizWrongCt;
+  document.getElementById('qr-t').innerText=total;
+  document.getElementById('qz-res-msg').innerText=
+    pct===100?'🏆 Kamaal! Sab words pakke ho gaye!':
+    pct>=80  ?'🌟 Excellent! SSC ready ho!':
+    pct>=60  ?'👍 Achha hai! Thoda aur mehnat karo.':
+              '💪 Roz practice karo — improvement pakki hai!';
+}
+
+function reviseWrong(){
+  if(!quizWrongIds.length){ alert('Koi galat jawab nahi tha!'); return; }
+  quizQ=words.filter(w=>quizWrongIds.includes(w.id||w.word));
+  quizIdx=0; quizCorrect=0; quizWrongCt=0; quizWrongIds=[];
+  document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+  showQuizQ();
+}
+
+// ══════════════════════════════════
+//  ADD WORD
+// ══════════════════════════════════
+function addWord(){
+  const word=document.getElementById('add-word').value.trim();
+  const ph=document.getElementById('add-ph').value.trim();
+  const type=document.getElementById('add-type').value;
+  const en=document.getElementById('add-en').value.trim();
+  const hi=document.getElementById('add-hi').value.trim();
+  const ex=document.getElementById('add-ex').value.trim();
+  const mn=document.getElementById('add-mn').value.trim();
+  const syn=document.getElementById('add-syn').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const ant=document.getElementById('add-ant').value.split(',').map(s=>s.trim()).filter(Boolean);
+
+  if(!word||!en||!hi){ document.getElementById('add-msg').innerHTML='<span style="color:var(--red)">⚠️ Word, English aur Hindi meaning zaroori hain!</span>'; return; }
+  const id=word.toLowerCase().replace(/\s+/g,'_')+Date.now();
+  words.push({id,word,ph:ph||word,type,en,hi,ex,mn,syn,ant});
+  saveWords(); updateAll();
+
+  ['add-word','add-ph','add-en','add-hi','add-ex','add-mn','add-syn','add-ant'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-msg').innerHTML=`<span style="color:var(--green)">✅ "${word}" add ho gaya! Total: ${words.length}</span>`;
+  setTimeout(()=>document.getElementById('add-msg').innerHTML='', 3000);
+}
+
+// ══════════════════════════════════
+//  MANAGE
+// ══════════════════════════════════
+function renderManage(){
+  document.getElementById('mg-count').innerText=words.length;
+  const list=document.getElementById('word-list');
+  list.innerHTML='';
+  if(!words.length){
+    list.innerHTML='<div class="empty"><div class="ei">📭</div><p>Koi words nahi abhi. Add karo ya SSC list load karo!</p></div>';
+    return;
+  }
+  words.forEach(w=>{
+    const div=document.createElement('div');
+    div.className='word-list-item';
+    div.innerHTML=`
+      <div style="flex:1">
+        <div class="wli-word">${w.word}</div>
+        <div class="wli-ph">${w.ph||''}</div>
+        <div class="wli-mean">${w.en} | <span style="color:var(--accent2)">${w.hi}</span></div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button onclick="speakText('${w.word.replace(/'/g,"\\'")}',0.8)" style="background:rgba(110,231,183,.1);border:1px solid rgba(110,231,183,.3);color:var(--accent);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:.9rem;">🔊</button>
+        <button class="btn-danger" onclick="deleteWord('${w.id||w.word}')">🗑</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function deleteWord(id){
+  words=words.filter(w=>(w.id||w.word)!==id);
+  delete prog[id];
+  saveWords(); saveProg(); renderManage(); updateAll();
+}
+
+function clearAll(){
+  if(confirm('Saare words delete ho jayenge?')){
+    words=[]; prog={};
+    saveWords(); saveProg(); renderManage(); updateAll();
+  }
+}
+
+// ══════════════════════════════════
+//  PROGRESS
+// ══════════════════════════════════
+function renderProgress(){
+  const total=words.length;
+  let mastered=0, hardCount=0;
+  words.forEach(w=>{
+    const p=prog[w.id||w.word]||{knew:0,hard:0};
+    const t=p.knew+p.hard;
+    if(t>=3&&p.knew/t>=0.8) mastered++;
+    else if(p.hard>p.knew) hardCount++;
+  });
+  document.getElementById('pr-total').innerText=total;
+  document.getElementById('pr-mastered').innerText=mastered;
+  document.getElementById('pr-hard').innerText=hardCount;
+
+  const bars=document.getElementById('pr-bars');
+  bars.innerHTML='';
+
+  // Overall
+  const totalAttempts=words.reduce((s,w)=>{ const p=prog[w.id||w.word]||{knew:0,hard:0}; return s+p.knew+p.hard; },0);
+  const totalKnew=words.reduce((s,w)=>{ const p=prog[w.id||w.word]||{knew:0,hard:0}; return s+p.knew; },0);
+  const overallPct=totalAttempts?Math.round(totalKnew/totalAttempts*100):0;
+  const color=overallPct>=80?'var(--green)':overallPct>=50?'var(--accent)':'var(--red)';
+
+  bars.innerHTML=`
+    <div class="prog-bar-row">
+      <div class="pb-label"><span>Overall Accuracy</span><span style="color:${color}">${overallPct}%</span></div>
+      <div class="pb-bg"><div class="pb-fill" style="width:${overallPct}%;background:${color};"></div></div>
+    </div>
+    <div class="prog-bar-row" style="margin-top:14px;">
+      <div class="pb-label"><span>Mastered</span><span style="color:var(--green)">${mastered}/${total}</span></div>
+      <div class="pb-bg"><div class="pb-fill" style="width:${total?Math.round(mastered/total*100):0}%;background:var(--green);"></div></div>
+    </div>`;
+
+  // Top hard words
+  const hardWords=words
+    .map(w=>({w,p:prog[w.id||w.word]||{knew:0,hard:0}}))
+    .filter(x=>x.p.hard>0)
+    .sort((a,b)=>b.p.hard-a.p.hard).slice(0,8);
+
+  if(hardWords.length){
+    const h=document.createElement('div');
+    h.style='margin-top:20px;';
+    h.innerHTML='<div style="font-size:.85rem;color:var(--muted);margin-bottom:10px;font-weight:600;">🔴 Mushkil Words (Practice Karo)</div>';
+    hardWords.forEach(({w,p})=>{
+      const acc=p.knew+p.hard?Math.round(p.knew/(p.knew+p.hard)*100):0;
+      const col=acc>=80?'var(--green)':acc>=50?'var(--accent)':'var(--red)';
+      const row=document.createElement('div');
+      row.className='prog-bar-row';
+      row.innerHTML=`
+        <div class="pb-label">
+          <span style="font-family:'Crimson Pro',serif;font-size:1rem;">${w.word} <span style="font-size:.75rem;color:var(--muted);">${w.ph||''}</span></span>
+          <span style="color:${col}">${acc}% (${p.knew}✅ ${p.hard}❌)</span>
+        </div>
+        <div class="pb-bg"><div class="pb-fill" style="width:${acc}%;background:${col};"></div></div>`;
+      h.appendChild(row);
+    });
+    bars.appendChild(h);
+  }
+
+  if(!total) bars.innerHTML='<div class="empty"><p>Koi progress nahi abhi. Study start karo!</p></div>';
+}
+
+function resetProgress(){
+  if(confirm('Saari progress reset ho jayegi?')){ prog={}; saveProg(); renderProgress(); }
+}
+
+// ══════════════════════════════════
+//  UTILS
+// ══════════════════════════════════
+function updateAll(){
+  document.getElementById('st-total').innerText=words.length;
+}
+
+// Init
+updateAll();
+initStudy();
+</script>
+</body>
+</html>
